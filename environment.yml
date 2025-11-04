@@ -2,6 +2,7 @@ name: clinvar_anno_env
 channels:
   - conda-forge
   - bioconda
+  - defaults
 dependencies:
   - _libgcc_mutex=0.1=main
   - _openmp_mutex=5.1=1_gnu
@@ -40,6 +41,8 @@ dependencies:
       - charset-normalizer==3.4.4
       - click==8.3.0
       - flask==3.1.2
+      - flask-sqlalchemy==3.1.1
+      - greenlet==3.2.4
       - idna==3.11
       - itsdangerous==2.2.0
       - jinja2==3.1.6
@@ -50,8 +53,9 @@ dependencies:
       - pytz==2025.2
       - requests==2.32.5
       - six==1.17.0
+      - sqlalchemy==2.0.44
+      - typing-extensions==4.15.0
       - tzdata==2025.2
       - urllib3==2.5.0
       - werkzeug==3.1.3
       - xmltodict==1.0.2
-
