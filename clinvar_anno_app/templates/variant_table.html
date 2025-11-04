@@ -16,18 +16,20 @@
 <body>
 <div class="container mt-4">
     <!--Page title-->
-    <h1>Variants with ClinVar annotations</h1>
+    <h1>ClinVar Annotator</h1>
+    <!--Info messages about what data the table is currently displaying-->
+    <p class="text-muted">Showing ClinVar-annotated variants from {{ filenames|join(', ') }}</p>
+    <p id="summary" class="fw-bold text-muted"></p>
     <!--Table of annotated variants-->
     <table id="variants" class="display table table-bordered">
         <!--Column headers-->
         <thead>
             <tr>
                 <th>Patient ID</th>
-                <th>Chromosome</th>
-                <th>Position</th>
-                <th>Reference</th>
-                <th>Alternate</th>
-                <th>ClinVar Annotations</th>
+                <th>Variant</th>
+                <th>Consensus Classification</th>
+                <th>Review Status</th>
+                <th>Condition</th>
             </tr>
         </thead>
         <!--Loop through patient_variants dict to display data in the table (one variant per row)-->
@@ -35,25 +37,94 @@
         {% for pv in patient_variants %}
             <tr>
                 <td>{{ pv.patient_id }}</td>
-                <td>{{ pv.chrom }}</td>
-                <td>{{ pv.pos }}</td>
-                <td>{{ pv.ref }}</td>
-                <td>{{ pv.alt }}</td>
-                <td><pre>{{ pv.clinvar | tojson(indent=2) }}</pre></td>
+                <td>{{ pv.variant }}</td>
+                <td>{{ pv.consensus_classification }}</td>
+                <td>{{ pv.review_status }}</td>
+                <td>{{ pv.condition }}</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 </div>
 
-<!--JavaScript to render the table using DataTables library-->
+<!--JavaScript functionalities-->
 <script>
-$(document).ready(function() {
-    $('#variants').DataTable({
-        dom: 'Bfrtip', // Bfrtip sets options for buttons, filtering, pagination, etc.
-        buttons: ['csvHtml5'] // Button to save CSV of data in table (or filtered table)
+// Render the table using DataTables library
+$(function() {
+    // Make sure the table exists
+    const $table = $('#variants');
+    if (!$table.length) return;
+
+    const table = $table.DataTable({
+        // Bfrtip sets options for buttons, filtering, pagination, etc.
+        dom: 'Bfrtip',
+        // Button to save CSV from table (taking filtering into account)
+        buttons: [
+            {
+                extend: 'csv',
+                text: 'Download CSV',
+                title: 'ClinVar-annotated-variants',
+                filename: 'ClinVar-annotated-variants'
+            }
+        ]
     });
+
+    // Function to provide summary message above table (e.g. 3 variant(s) in 2 patient(s) currently shown)
+    function updateSummary() {
+        const data = table.rows({ filter: 'applied' }).data();
+        const patients = new Set();
+        const variants = new Set();
+
+        // Count patients and variants
+        for (let i = 0; i < data.length; i++) {
+            patients.add(data[i][0]); // first column = patient ID
+            variants.add(data[i][1]); // second column = variant
+        }
+
+        // Summary message
+        $('#summary').text(`${variants.size} variant(s) in ${patients.size} patient(s) currently shown`);
+    }
+
+    // Update the summary message every time the table is filtered using the search box
+    table.on('draw search.dt', updateSummary);
+    updateSummary();
 });
 </script>
+
+<!-- <script>
+// Render the table using DataTables library
+$(document).ready(function() {
+    $('#variants').DataTable({
+        // Bfrtip sets options for buttons, filtering, pagination, etc.
+        dom: 'Bfrtip',
+        // Button to save CSV from table (taking filtering into account)
+        buttons: [
+            {
+                extend: 'csv',
+                text: 'Download CSV',
+                title: 'ClinVar-annotated-variants',
+                filename: 'ClinVar-annotated-variants'
+            }
+        ]
+    });
+
+    // Function to 
+    function updateSummary() {
+        const data = table.rows({ filter: 'applied' }).data();
+        const patients = new Set();
+        const variants = new Set();
+
+        for (let i = 0; i < data.length; i++) {
+            patients.add(data[i][0]); // patient id column
+            variants.add(data[i][1]); // variant column
+        }
+
+        $('#summary').text(`${patients.size} patient(s) and ${variants.size} variant(s) shown`);
+    }
+
+    table.on('search.dt', updateSummary);
+    updateSummary();
+});
+</script> -->
 </body>
 </html>
