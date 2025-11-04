@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Annotated Variants</title>
+    <!--Title to appear in browser's title bar-->
+    <title>ClinVar Annotator</title>
+    <!--Useful libraries for CSS styling and additional JavaScript functionalities-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
@@ -13,8 +15,11 @@
 </head>
 <body>
 <div class="container mt-4">
-    <h1>ClinVar Annotated Variants</h1>
+    <!--Page title-->
+    <h1>Variants with ClinVar annotations</h1>
+    <!--Table of annotated variants-->
     <table id="variants" class="display table table-bordered">
+        <!--Column headers-->
         <thead>
             <tr>
                 <th>Patient ID</th>
@@ -25,6 +30,7 @@
                 <th>ClinVar Annotations</th>
             </tr>
         </thead>
+        <!--Loop through patient_variants dict to display data in the table (one variant per row)-->
         <tbody>
         {% for pv in patient_variants %}
             <tr>
@@ -40,11 +46,12 @@
     </table>
 </div>
 
+<!--JavaScript to render the table using DataTables library-->
 <script>
 $(document).ready(function() {
     $('#variants').DataTable({
-        dom: 'Bfrtip',
-        buttons: ['csvHtml5']
+        dom: 'Bfrtip', // Bfrtip sets options for buttons, filtering, pagination, etc.
+        buttons: ['csvHtml5'] // Button to save CSV of data in table (or filtered table)
     });
 });
 </script>
