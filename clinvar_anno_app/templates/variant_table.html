@@ -2,129 +2,265 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!--Title to appear in browser's title bar-->
     <title>ClinVar Annotator</title>
-    <!--Useful libraries for CSS styling and additional JavaScript functionalities-->
+
+    <!-- CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
+
+    <!-- JS -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <style>
+        .select2-container {
+            width: 100% !important;
+        }
+        .filters th {
+            padding: 8px 5px !important;
+        }
+        .filter-controls {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .filter-row {
+            margin-bottom: 10px;
+        }
+        .filter-row label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .clear-filters-btn {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-<div class="container mt-4">
-    <!--Page title-->
+<div class="container-fluid mt-4">
     <h1>ClinVar Annotator</h1>
-    <!--Info messages about what data the table is currently displaying-->
     <p class="text-muted">Showing ClinVar-annotated variants from {{ filenames|join(', ') }}</p>
-    <p id="summary" class="fw-bold text-muted"></p>
-    <!--Table of annotated variants-->
-    <table id="variants" class="display table table-bordered">
-        <!--Column headers-->
+
+    <!-- Multi-Select Filter Controls -->
+    <div class="filter-controls">
+        <h5>Filters</h5>
+        <div class="row">
+            <div class="col-md-3 filter-row">
+                <label for="filter-patient">Patient</label>
+                <select id="filter-patient" class="form-select" multiple="multiple"></select>
+            </div>
+            <div class="col-md-3 filter-row">
+                <label for="filter-variant">Variant</label>
+                <select id="filter-variant" class="form-select" multiple="multiple"></select>
+            </div>
+            <div class="col-md-3 filter-row">
+                <label for="filter-gene">Gene Symbol</label>
+                <select id="filter-gene" class="form-select" multiple="multiple"></select>
+            </div>
+            <div class="col-md-3 filter-row">
+                <label for="filter-classification">Consensus Classification</label>
+                <select id="filter-classification" class="form-select" multiple="multiple"></select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 filter-row">
+                <button id="clear-filters" class="btn btn-secondary clear-filters-btn">Clear All Filters</button>
+            </div>
+        </div>
+    </div>
+
+    <p id="summary" class="fw-bold text-primary"></p>
+
+    <table id="variants" class="display table table-striped table-bordered" style="width:100%">
         <thead>
             <tr>
-                <th>Patient ID</th>
-                <th>Variant</th>
+                <th>Patient</th>
+                <th>Variant (VCF desc.)</th>
+                <th>Variant (HGVSg)</th>
+                <th>Variant (HGVSc)</th>
+                <th>Gene Symbol</th>
                 <th>Consensus Classification</th>
                 <th>Review Status</th>
+                <th>Protein Change</th>
+                <th>Molecular Consequences</th>
                 <th>Condition</th>
+                <th>OMIM Disorder Code</th>
+                <th>ClinVar URL</th>
             </tr>
         </thead>
-        <!--Loop through patient_variants dict to display data in the table (one variant per row)-->
+        <thead>
+            <tr class="filters">
+                <th><input type="text" placeholder="Search patient" class="form-control form-control-sm"></th>
+                <th><input type="text" placeholder="Search VCF desc." class="form-control form-control-sm"></th>
+                <th><input type="text" placeholder="Search HGVSg" class="form-control form-control-sm"></th>
+                <th><input type="text" placeholder="Search HGVSc" class="form-control form-control-sm"></th>
+                <th><input type="text" placeholder="Search gene" class="form-control form-control-sm"></th>
+                <th><input type="text" placeholder="Search classification" class="form-control form-control-sm"></th>
+                <th><input type="text" placeholder="Search review status" class="form-control form-control-sm"></th>
+                <th><input type="text" placeholder="Search protein change" class="form-control form-control-sm"></th>
+                <th><input type="text" placeholder="Search molecular consequences" class="form-control form-control-sm"></th>
+                <th><input type="text" placeholder="Search condition" class="form-control form-control-sm"></th>
+                <th><input type="text" placeholder="Search OMIM disorder code" class="form-control form-control-sm"></th>
+                <th><input type="text" placeholder="Search ClinVar URL" class="form-control form-control-sm"></th>
+            </tr>
+        </thead>
         <tbody>
         {% for pv in patient_variants %}
             <tr>
                 <td>{{ pv.patient_id }}</td>
-                <td>{{ pv.variant }}</td>
+                <td>{{ pv.variant_description }}</td>
+                <td>{{ pv.hgvsg }}</td>
+                <td>{{ pv.hgvsc }}</td>
+                <td>{{ pv.gene_symbol }}</td>
                 <td>{{ pv.consensus_classification }}</td>
-                <td>{{ pv.review_status }}</td>
+                <td>{{ pv.review_status_stars }}</td>
+                <td>{{ pv.protein_change }}</td>
+                <td>{{ pv.molecular_consequences }}</td>
                 <td>{{ pv.condition }}</td>
+                <td>{{ pv.condition_omim_id }}</td>
+                <td>{{ pv.clinvar_url }}</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 </div>
 
-<!--JavaScript functionalities-->
 <script>
-// Render the table using DataTables library
 $(function() {
-    // Make sure the table exists
     const $table = $('#variants');
     if (!$table.length) return;
 
+    // Column indices for multi-select filters
+    const filterColumns = {
+        patient: 0,
+        variant: 1,
+        gene: 4,
+        classification: 5,
+    };
+
     const table = $table.DataTable({
-        // Bfrtip sets options for buttons, filtering, pagination, etc.
         dom: 'Bfrtip',
-        // Button to save CSV from table (taking filtering into account)
-        buttons: [
-            {
-                extend: 'csv',
-                text: 'Download CSV',
-                title: 'ClinVar-annotated-variants',
-                filename: 'ClinVar-annotated-variants'
-            }
-        ]
+        stateSave: true,
+        buttons: [{
+            extend: 'csv',
+            text: 'Download CSV',
+            title: 'ClinVar-annotated-variants',
+            filename: 'ClinVar-annotated-variants'
+        }],
+        orderCellsTop: true,
+        fixedHeader: true,
+        pageLength: 25
     });
 
-    // Function to provide summary message above table (e.g. 3 variant(s) in 2 patient(s) currently shown)
+    // Populate multi-select dropdowns with unique values
+    function populateSelect(columnIndex, selectId) {
+        const uniqueValues = new Set();
+        table.column(columnIndex).data().each(function(val) {
+            if (val && val.trim() !== '') {
+                uniqueValues.add(val.trim());
+            }
+        });
+
+        const $select = $(selectId);
+        const sortedValues = Array.from(uniqueValues).sort();
+        
+        sortedValues.forEach(function(val) {
+            $select.append(new Option(val, val, false, false));
+        });
+
+        // Initialize Select2
+        $select.select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Select...',
+            allowClear: true,
+            closeOnSelect: false
+        });
+    }
+
+    // Populate all multi-select dropdowns
+    populateSelect(filterColumns.patient, '#filter-patient');
+    populateSelect(filterColumns.variant, '#filter-variant');
+    populateSelect(filterColumns.gene, '#filter-gene');
+    populateSelect(filterColumns.classification, '#filter-classification');
+
+    // Custom filtering function for multi-select
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        // Get selected values for each filter
+        const selectedPatients = $('#filter-patient').val() || [];
+        const selectedVariants = $('#filter-variant').val() || [];
+        const selectedGenes = $('#filter-gene').val() || [];
+        const selectedClassifications = $('#filter-classification').val() || [];
+
+        // Check each filter - if filter has selections, row must match one of them
+        if (selectedPatients.length > 0 && !selectedPatients.includes(data[filterColumns.patient])) {
+            return false;
+        }
+        if (selectedVariants.length > 0 && !selectedVariants.includes(data[filterColumns.patient])) {
+            return false;
+        }
+        if (selectedGenes.length > 0 && !selectedGenes.includes(data[filterColumns.gene])) {
+            return false;
+        }
+        if (selectedClassifications.length > 0 && !selectedClassifications.includes(data[filterColumns.classification])) {
+            return false;
+        }
+
+        return true;
+    });
+
+    // Apply filters when selections change
+    $('#filter-patient, #filter-variant, #filter-gene, #filter-classification').on('change', function() {
+        table.draw();
+    });
+
+    // Clear all filters button
+    $('#clear-filters').on('click', function() {
+        $('#filter-patient, #filter-variant, #filter-gene, #filter-classification').val(null).trigger('change');
+        $('input', $('.filters th')).val('');
+        table.columns().search('').draw();
+    });
+
+    // Apply per-column text search filters
+    table.columns().every(function (index) {
+        $('input', $('.filters th').eq(index))
+            .on('keyup change', function () {
+                table.column(index).search(this.value).draw();
+            });
+    });
+
+    // Live summary
     function updateSummary() {
         const data = table.rows({ filter: 'applied' }).data();
         const patients = new Set();
         const variants = new Set();
+        const genes = new Set();
+        const classifications = new Set();
 
-        // Count patients and variants
         for (let i = 0; i < data.length; i++) {
-            patients.add(data[i][0]); // first column = patient ID
-            variants.add(data[i][1]); // second column = variant
+            patients.add(data[i][0]);
+            variants.add(data[i][1]);
+            genes.add(data[i][4]);
+            classifications.add(data[i][5]);
         }
 
-        // Summary message
-        $('#summary').text(`${variants.size} variant(s) in ${patients.size} patient(s) currently shown`);
+        $('#summary').text(
+            `The table currently shows: ${variants.size} variant(s), ${patients.size} patient(s), ` +
+            `${genes.size} gene(s), ${classifications.size} classification(s)`
+        );
     }
 
-    // Update the summary message every time the table is filtered using the search box
     table.on('draw search.dt', updateSummary);
     updateSummary();
 });
 </script>
 
-<!-- <script>
-// Render the table using DataTables library
-$(document).ready(function() {
-    $('#variants').DataTable({
-        // Bfrtip sets options for buttons, filtering, pagination, etc.
-        dom: 'Bfrtip',
-        // Button to save CSV from table (taking filtering into account)
-        buttons: [
-            {
-                extend: 'csv',
-                text: 'Download CSV',
-                title: 'ClinVar-annotated-variants',
-                filename: 'ClinVar-annotated-variants'
-            }
-        ]
-    });
-
-    // Function to 
-    function updateSummary() {
-        const data = table.rows({ filter: 'applied' }).data();
-        const patients = new Set();
-        const variants = new Set();
-
-        for (let i = 0; i < data.length; i++) {
-            patients.add(data[i][0]); // patient id column
-            variants.add(data[i][1]); // variant column
-        }
-
-        $('#summary').text(`${patients.size} patient(s) and ${variants.size} variant(s) shown`);
-    }
-
-    table.on('search.dt', updateSummary);
-    updateSummary();
-});
-</script> -->
 </body>
 </html>
