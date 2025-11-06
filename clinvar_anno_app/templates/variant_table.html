@@ -2,28 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!--Title to appear in broswer tab-->
     <title>ClinVar Annotator</title>
 
-    <!-- CSS -->
+    <!--External CSS styling (Bootstrap, DataTables, Select2)-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
 
-    <!-- JS -->
+    <!--Additional JavaScript functionalities-->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    <!--Custom styling-->
     <style>
         .select2-container {
             width: 100% !important;
-        }
-        .filters th {
-            padding: 8px 5px !important;
         }
         .filter-controls {
             background-color: #f8f9fa;
@@ -46,10 +45,12 @@
 </head>
 <body>
 <div class="container-fluid mt-4">
+    <!--Page title-->
     <h1>ClinVar Annotator</h1>
+    <!--Info message for the user-->
     <p class="text-muted">Showing ClinVar-annotated variants from {{ filenames|join(', ') }}</p>
 
-    <!-- Multi-Select Filter Controls -->
+    <!--Multi-select filters-->
     <div class="filter-controls">
         <h5>Filters</h5>
         <div class="row">
@@ -70,16 +71,21 @@
                 <select id="filter-classification" class="form-select" multiple="multiple"></select>
             </div>
         </div>
+        <!--New row-->
         <div class="row">
-            <div class="col-md-9 filter-row">
+            <!--Clear filters button-->
+            <div class="col-md-12 filter-row">
                 <button id="clear-filters" class="btn btn-secondary clear-filters-btn">Clear All Filters</button>
             </div>
         </div>
     </div>
 
+    <!--Message to summarise tallies of patients, variants, genes, and classifications (JS logic below)-->
     <p id="summary" class="fw-bold text-primary"></p>
 
+    <!--Table-->
     <table id="variants" class="display table table-striped table-bordered" style="width:100%">
+        <!--Column headers-->
         <thead>
             <tr>
                 <th>Patient</th>
@@ -96,27 +102,12 @@
                 <th>ClinVar URL</th>
             </tr>
         </thead>
-        <thead>
-            <tr class="filters">
-                <th><input type="text" placeholder="Search patient" class="form-control form-control-sm"></th>
-                <th><input type="text" placeholder="Search VCF desc." class="form-control form-control-sm"></th>
-                <th><input type="text" placeholder="Search HGVSg" class="form-control form-control-sm"></th>
-                <th><input type="text" placeholder="Search HGVSc" class="form-control form-control-sm"></th>
-                <th><input type="text" placeholder="Search gene" class="form-control form-control-sm"></th>
-                <th><input type="text" placeholder="Search classification" class="form-control form-control-sm"></th>
-                <th><input type="text" placeholder="Search review status" class="form-control form-control-sm"></th>
-                <th><input type="text" placeholder="Search protein change" class="form-control form-control-sm"></th>
-                <th><input type="text" placeholder="Search molecular consequences" class="form-control form-control-sm"></th>
-                <th><input type="text" placeholder="Search condition" class="form-control form-control-sm"></th>
-                <th><input type="text" placeholder="Search OMIM disorder code" class="form-control form-control-sm"></th>
-                <th><input type="text" placeholder="Search ClinVar URL" class="form-control form-control-sm"></th>
-            </tr>
-        </thead>
+        <!--Loop through elements in patient_variants object to place data in each row-->
         <tbody>
         {% for pv in patient_variants %}
             <tr>
                 <td>{{ pv.patient_id }}</td>
-                <td>{{ pv.variant_description }}</td>
+                <td>{{ pv.variant }}</td>
                 <td>{{ pv.hgvsg }}</td>
                 <td>{{ pv.hgvsc }}</td>
                 <td>{{ pv.gene_symbol }}</td>
@@ -155,8 +146,6 @@ $(function() {
             title: 'ClinVar-annotated-variants',
             filename: 'ClinVar-annotated-variants'
         }],
-        orderCellsTop: true,
-        fixedHeader: true,
         pageLength: 25
     });
 
@@ -203,7 +192,7 @@ $(function() {
         if (selectedPatients.length > 0 && !selectedPatients.includes(data[filterColumns.patient])) {
             return false;
         }
-        if (selectedVariants.length > 0 && !selectedVariants.includes(data[filterColumns.patient])) {
+        if (selectedVariants.length > 0 && !selectedVariants.includes(data[filterColumns.variant])) {
             return false;
         }
         if (selectedGenes.length > 0 && !selectedGenes.includes(data[filterColumns.gene])) {
@@ -224,16 +213,7 @@ $(function() {
     // Clear all filters button
     $('#clear-filters').on('click', function() {
         $('#filter-patient, #filter-variant, #filter-gene, #filter-classification').val(null).trigger('change');
-        $('input', $('.filters th')).val('');
-        table.columns().search('').draw();
-    });
-
-    // Apply per-column text search filters
-    table.columns().every(function (index) {
-        $('input', $('.filters th').eq(index))
-            .on('keyup change', function () {
-                table.column(index).search(this.value).draw();
-            });
+        table.draw();
     });
 
     // Live summary
