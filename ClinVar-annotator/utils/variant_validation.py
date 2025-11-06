@@ -1,36 +1,53 @@
+"""
+Variant Validator Utility
+-------------------------
+Converts genomic variant (e.g., chr11:2164285:C:T) to
+genomic (g.) and transcript (c.) HGVS using the VariantValidator API.
+"""
+
 import requests
-import sys
 
-def get_hgvs(variant, build="GRCh38"):
+def get_hgvs(variant_str: str, genome_build: str = "GRCh38"):
     """
-    Convert genomic variant like 19:41968837:C:G to HGVS using VariantFormatter API.
+    Convert a variant string to HGVS notation using VariantValidator.
+    
+    Returns:
+        tuple: (genomic_hgvs, transcript_hgvs)
     """
-    url = (
-        f"https://rest.variantvalidator.org/VariantFormatter/variantformatter/"
-        f"{build}/{variant}/refseq/mane/True?content-type=application/json"
-    )
+    base_urls = [
+        "https://rest.variantvalidator.org",
+        "https://api.variantvalidator.org"
+    ]
 
-    try:
-        r = requests.get(url, timeout=20)
-        r.raise_for_status()
-        data = r.json()
+    for base in base_urls:
+        # ✅ Officially correct VariantFormatter endpoint:
+        # /VariantFormatter/variantformatter/{genome_build}/{variant_description}/{transcript_model}/{select_transcripts}/{checkonly}
+        api_url = (
+            f"{base}/VariantFormatter/variantformatter/"
+            f"{genome_build}/{variant_str}/refseq/mane_select/False?content-type=application/json"
+        )
 
-        # Data structure: data[variant][variant]['g_hgvs']
-        inner = data.get(variant, {}).get(variant, {})
-        g_hgvs = inner.get("g_hgvs")
+        try:
+            response = requests.get(api_url, timeout=20)
+            response.raise_for_status()
+            data = response.json()
 
-        if g_hgvs:
-            print({g_hgvs})
-        else:
-            import json
-            print("Full response:\n", json.dumps(data, indent=2))
+            # Extract top-level variant data
+            inner = data.get(variant_str, {}).get(variant_str, {})
+            genomic_hgvs = inner.get("g_hgvs")
 
-    except requests.HTTPError as e:
-        print(f"HTTP error: {e}\nURL tried: {url}")
-    except Exception as e:
-        print(f"Error: {e}")
+            # Extract transcript HGVS from "hgvs_t_and_p" field (newer API format)
+            transcript_hgvs = None
+            if "hgvs_t_and_p" in inner:
+                for tx_id, tx_data in inner["hgvs_t_and_p"].items():
+                    t_hgvs = tx_data.get("t_hgvs")
+                    if t_hgvs:
+                        transcript_hgvs = t_hgvs
+                        break
 
-if __name__ == "__main__":
-    variant = sys.argv[1]  # e.g. 19:41968837:C:G
-    build = sys.argv[2] if len(sys.argv) > 2 else "GRCh38"
-    get_hgvs(variant, build)
+            return genomic_hgvs, transcript_hgvs
+
+        except requests.exceptions.RequestException as e:
+            print(f"[Error] HGVS conversion failed for {variant_str} using {base}: {e}")
+
+    return None, None

@@ -12,48 +12,9 @@ import json
 import time
 from modules.clinvar_extractor import ClinVarSearch
 from modules.vcf_parser import parse_vcf_file
-
-
-def fetch_genomic_hgvs(variant_str: str, genome_build: str = "GRCh38"):
-    """
-    Fetch genomic HGVS (g.) description using VariantValidator API.
-    Falls back between two base URLs if one fails.
-    """
-    base_urls = [
-        "https://rest.variantvalidator.org",
-        "https://api.variantvalidator.org"
-    ]
-
-    for base in base_urls:
-        api_url = (
-            f"{base}/VariantFormatter/variantformatter/"
-            f"{genome_build}/{variant_str}/refseq/all/False?content-type=application/json"
-        )
-        try:
-            response = requests.get(api_url, timeout=20)
-            response.raise_for_status()
-            data = response.json()
-
-            inner = data.get(variant_str, {}).get(variant_str, {})
-            genomic_hgvs = inner.get("g_hgvs")
-
-            if genomic_hgvs:
-                return genomic_hgvs
-
-        except Exception as e:
-            print(f"[Error] HGVS conversion failed for {variant_str} using {base}: {e}")
-
-    return None
-
+from utils.variant_validation import get_hgvs
 
 def run_annotation_pipeline(vcf_file_path: str, genome_build: str = "GRCh38"):
-    """
-    End-to-end pipeline:
-      - Parse VCF file
-      - Convert variants to genomic HGVS
-      - Query ClinVar for annotations
-      - Return dictionary output
-    """
     vcf_path = Path(vcf_file_path)
     print(f"Reading VCF file: {vcf_path}")
 
@@ -70,8 +31,9 @@ def run_annotation_pipeline(vcf_file_path: str, genome_build: str = "GRCh38"):
     for variant_str in parsed_variants:
         print(f"Processing variant: {variant_str}")
 
-        genomic_hgvs = fetch_genomic_hgvs(variant_str, genome_build)
+        genomic_hgvs, transcript_hgvs = get_hgvs(variant_str, genome_build)
         print(f"Genomic HGVS: {genomic_hgvs or 'N/A'}")
+        print(f"Transcript HGVS: {transcript_hgvs or 'N/A'}")
 
         if not genomic_hgvs:
             print(f"Skipping {variant_str} — no valid HGVS found.\n")
@@ -81,10 +43,10 @@ def run_annotation_pipeline(vcf_file_path: str, genome_build: str = "GRCh38"):
         annotation_data = clinvar_client.search_by_hgvs(genomic_hgvs)
 
         if annotation_data:
-            # Store only genomic HGVS (no transcript)
             annotation_data["genomic_hgvs"] = genomic_hgvs
+            annotation_data["transcript_hgvs"] = transcript_hgvs or "N/A"
             annotated_results[variant_str] = annotation_data
-            print(f"ClinVar match found: {annotation_data.get('variation_name', 'N/A')}\n")
+            print(f"  ✅ ClinVar match found: {annotation_data.get('variation_name', 'N/A')}\n")
         else:
             print(f"No ClinVar entry found for {variant_str}.\n")
 
