@@ -1,15 +1,18 @@
 from pathlib import Path
 
-def parse_vcf_file(vcf_filepath, debug=False):
+def parse_vcf_file(vcf_filepath: Path, debug: bool=False):
     """
-    Parse a VCF file and extract variants in the format: chr#:position REF>ALT
+    Parse a VCF file and extract variants in the format: chrom:position:REF:ALT
     
     Args:
         vcf_filepath: Path to the VCF file
         debug: If True, print debugging information
         
     Returns:
-        Dictionary with patient_id and list of formatted variants
+         list of formatted variants
+
+    Raises:
+
     """
     variants = []
     
@@ -53,6 +56,7 @@ def parse_vcf_file(vcf_filepath, debug=False):
                     alt = fields[4].strip()
                     
                     variant = f"{chrom}:{pos}:{ref}:{alt}"
+                    # Formats variants
                     variants.append(variant)
                     
                     if debug:
@@ -75,7 +79,7 @@ def parse_vcf_file(vcf_filepath, debug=False):
 
 # Example usage
 if __name__ == "__main__":
-    result = parse_vcf_file("ClinVar-annotator/data/Patient1.vcf")
+    result = parse_vcf_file("/home/ubuntu/software_project/ClinVar-annotator/data/Patient1.vcf")
     print(result)
 
 
