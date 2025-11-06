@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 def parse_vcf_file(vcf_filepath, debug=False):
@@ -12,9 +11,6 @@ def parse_vcf_file(vcf_filepath, debug=False):
     Returns:
         Dictionary with patient_id and list of formatted variants
     """
-    # Extract patient ID from filename (without extension)
-    patient_id = Path(vcf_filepath).stem
-    
     variants = []
     
     try:
@@ -50,15 +46,11 @@ def parse_vcf_file(vcf_filepath, debug=False):
                     print(f"  -> Fields: {fields[:5] if len(fields) >= 5 else fields}")
                 
                 if len(fields) >= 5:
+                    # Ensures current line has at least 5 fields before extracting values
                     chrom = fields[0].strip()
                     pos = fields[1].strip()
                     ref = fields[3].strip()
                     alt = fields[4].strip()
-                    
-                    # Format: chr#:position REF>ALT
-                    # Add 'chr' prefix if not already present
-                    if not chrom.startswith('chr'):
-                        chrom = f'chr{chrom}'
                     
                     variant = f"{chrom}:{pos}:{ref}:{alt}"
                     variants.append(variant)
@@ -78,14 +70,12 @@ def parse_vcf_file(vcf_filepath, debug=False):
         traceback.print_exc()
         return None
     
-    return {
-        'variants': variants
-    }
+    return variants
 
 
 # Example usage
 if __name__ == "__main__":
     result = parse_vcf_file("ClinVar-annotator/data/Patient1.vcf")
-    print(f"Variants: {result['variants']}")
+    print(result)
 
 
