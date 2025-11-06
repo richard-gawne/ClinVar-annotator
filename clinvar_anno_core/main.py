@@ -10,9 +10,9 @@ from pathlib import Path
 import requests
 import json
 import time
-from modules.clinvar_extractor import ClinVarSearch
-from modules.vcf_parser import parse_vcf_file
-from utils.variant_validation import get_hgvs
+from clinvar_anno_core.modules.clinvar_extractor import ClinVarSearch
+from clinvar_anno_core.modules.vcf_parser import parse_vcf_file
+from clinvar_anno_core.utils.variant_validation import get_hgvs
 
 def run_annotation_pipeline(vcf_file_path: str, genome_build: str = "GRCh38"):
     vcf_path = Path(vcf_file_path)
