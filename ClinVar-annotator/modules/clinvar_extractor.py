@@ -9,20 +9,35 @@ class ClinVarSearch:
         
     def search_by_hgvs(self, hgvs: str) -> Optional[Dict]:
         """
-        Search ClinVar for an exact HGVS variant (e.g., NM_003690.5:c.854A>G)
-        and return parsed annotation data.
+        Search ClinVar for an HGVS variant (either genomic 'g.' or transcript 'c.')
+        and return parsed annotation data as a dictionary.
+        Tries both exact (quoted) and relaxed (unquoted) searches.
         """
+        # Try both quoted and unquoted search strings
+        search_terms = [f'"{hgvs}"', hgvs]
+        variant_ids = []
 
-        variant_ids = self._search_clinvar(f'"{hgvs}"')
+        for term in search_terms:
+            ids = self._search_clinvar(term)
+            if ids:
+                variant_ids = ids
+                break  # use the first search mode that returns hits
+
         if not variant_ids:
             print(f"No results found in ClinVar for HGVS: {hgvs}")
             return None
+
+        # Get summary data for first matched variant ID
         vid = variant_ids[0]
         annotations, _ = self.fetch_variant_details(vid)
-        if annotations and annotations.get('variation_name') != 'N/A':
+
+        # Ensure valid annotation dictionary
+        if annotations and annotations.get("variation_name") != "N/A":
             return annotations
+
         print(f"No valid ClinVar summary for HGVS: {hgvs}")
         return None
+
 
 
     def _search_clinvar(self, search_term: str, retmax: int = 10) -> List[str]:
@@ -47,51 +62,52 @@ class ClinVarSearch:
         return []
     
 
-    def fetch_variant_details(self, variant_id: str) -> Dict:
+    def fetch_variant_details(self, variant_id: str):
         """Fetch comprehensive variant details using esummary"""
-        params = {
-            "db": "clinvar",
-            "id": variant_id,
-            "retmode": "json",}
+        params = {"db": "clinvar", "id": variant_id, "retmode": "json"}
         try:
             response = requests.get(self.clinvar_api, params=params, timeout=30)
             if response.status_code != 200:
-                return {}
+                return None, None
+
             data = response.json()
             if "result" not in data or variant_id not in data["result"]:
-                return {}
+                return None, None
+
             result = data["result"][variant_id]
-            annotations = self._parse_variant_summary(result, variant_id)  # Parse the comprehensive data
-            
+            # Pass safely to parser (handles missing keys)
+            annotations = self._parse_variant_summary(result, variant_id)
             return annotations, result
-            
+
         except Exception as e:
             print(f"Error fetching variant details: {e}")
-            return {}
+            return None, None
+
     
 
     def _parse_variant_summary(self, result: Dict, variant_id: str) -> Dict:
+        """Parse and normalize ClinVar variant summary safely"""
         annotations = {
-        "uid": result.get("uid", variant_id),
-        "obj_type": result.get("obj_type", "N/A"),
-        "variation_name": result.get("title", "N/A"),
-        "protein_change": result.get("protein_change", "N/A"),
-        "molecular_consequences": result.get("molecular_consequence_list", []),
-        "genes": [],
-        "assembly_name": "N/A",
-        "chr": "N/A",
-        "band": "N/A",
-        "start": "N/A",
-        "stop": "N/A",
-        "clinical_significance": "N/A",
-        "last_evaluated": "N/A",
-        "review_status": "N/A",
-        "trait_name": "N/A",
-        "trait_omim": "N/A",
-        "variation_id": str(result.get("variation_id", variant_id)),
+            "uid": result.get("uid", variant_id),
+            "obj_type": result.get("obj_type", "N/A"),
+            "variation_name": result.get("title", "N/A"),
+            "protein_change": result.get("protein_change", "N/A"),
+            "molecular_consequences": result.get("molecular_consequence_list", []),
+            "genes": [],
+            "assembly_name": "N/A",
+            "chr": "N/A",
+            "band": "N/A",
+            "start": "N/A",
+            "stop": "N/A",
+            "clinical_significance": "N/A",
+            "last_evaluated": "N/A",
+            "review_status": "N/A",
+            "trait_name": "N/A",
+            "trait_omim": "N/A",
+            "variation_id": str(result.get("variation_id", variant_id)),
         }
 
-        # Genomic location (GRCh38)
+        # ---- Extract genomic location ----
         for var_set in result.get("variation_set", []):
             for loc in var_set.get("variation_loc", []):
                 if loc.get("assembly_name") == "GRCh38":
@@ -102,7 +118,7 @@ class ClinVarSearch:
                     annotations["stop"] = str(loc.get("stop", "N/A"))
                     break
 
-        # Genes
+        # ---- Extract gene data ----
         for gene in result.get("genes", []):
             annotations["genes"].append({
                 "symbol": gene.get("symbol", "N/A"),
@@ -110,22 +126,24 @@ class ClinVarSearch:
                 "strand": gene.get("strand", "N/A"),
             })
 
-        # Germline classification
+        # ---- Extract germline classification ----
         germ = result.get("germline_classification", {})
         annotations["clinical_significance"] = germ.get("description", "N/A")
         annotations["last_evaluated"] = germ.get("last_evaluated", "N/A")
         annotations["review_status"] = germ.get("review_status", "N/A")
 
-        # Trait name and OMIM ID
-        for trait in germ.get("trait_set", []):
+        # ---- Extract trait and OMIM data ----
+        trait_set = germ.get("trait_set", [])
+        if trait_set:
+            trait = trait_set[0]
             annotations["trait_name"] = trait.get("trait_name", "N/A")
             for xref in trait.get("trait_xrefs", []):
                 if xref.get("db_source") == "OMIM":
                     annotations["trait_omim"] = xref.get("db_id", "N/A")
                     break
-            break
 
         return annotations
+
 
     
     def display_annotations(self, annotations: Dict):
