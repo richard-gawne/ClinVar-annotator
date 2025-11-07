@@ -76,25 +76,40 @@ def home():
                         else:
                             formatted_variant = f"GRCh38:{variant_key}"
 
+                        # Extract gene symbol from genes array (needed for both new and existing variants)
+                        gene_symbol = None
+                        if annotation_data.get('genes') and len(annotation_data['genes']) > 0:
+                            gene_symbol = annotation_data['genes'][0].get('symbol')
+                        
+                        # Extract only the first protein change (MANE Select)
+                        protein_change_raw = annotation_data.get('protein_change', '')
+                        if protein_change_raw and ',' in protein_change_raw:
+                            protein_change = protein_change_raw.split(',')[0].strip()
+                        else:
+                            protein_change = protein_change_raw
+                        
+                        # Extract only the first molecular consequence
+                        molecular_consequences_list = annotation_data.get('molecular_consequences', [])
+                        if molecular_consequences_list:
+                            molecular_consequence = molecular_consequences_list[0]
+                        else:
+                            molecular_consequence = ''
+                        
+                        # Map review_status to stars (simplified mapping)
+                        review_status = annotation_data.get('review_status', '')
+                        review_status_stars = 0*"★"
+                        if 'practice guideline' in review_status.lower():
+                            review_status_stars = 4*"★"
+                        elif 'reviewed by expert panel' in review_status.lower():
+                            review_status_stars = 3*"★"
+                        elif 'multiple submitters' in review_status.lower():
+                            review_status_stars = 2*"★"
+                        elif 'single submitter' in review_status.lower():
+                            review_status_stars = 1*"★"
+
                         # Check if variant already exists
                         variant_obj = Variant.query.filter_by(vcf_description=formatted_variant).first()
                         if not variant_obj:
-                            # Extract gene symbol from genes array
-                            gene_symbol = None
-                            if annotation_data.get('genes') and len(annotation_data['genes']) > 0:
-                                gene_symbol = annotation_data['genes'][0].get('symbol')
-
-                            # Map review_status to stars (simplified mapping)
-                            review_status = annotation_data.get('review_status', '')
-                            review_status_stars = 0*"★"
-                            if 'practice guideline' in review_status.lower():
-                                review_status_stars = 4*"★"
-                            elif 'reviewed by expert panel' in review_status.lower():
-                                review_status_stars = 3*"★"
-                            elif 'multiple submitters' in review_status.lower():
-                                review_status_stars = 2*"★"
-                            elif 'single submitter' in review_status.lower():
-                                review_status_stars = 1*"★"
                             
                             variant_obj = Variant(
                                 vcf_description=formatted_variant,
@@ -102,8 +117,8 @@ def home():
                                 hgvsc=annotation_data.get('transcript_hgvs'),
                                 gene_symbol=gene_symbol,
                                 review_status_stars=review_status_stars,
-                                protein_change=annotation_data.get('protein_change'),
-                                molecular_consequences=', '.join(annotation_data.get('molecular_consequences', [])),
+                                protein_change=protein_change,
+                                molecular_consequences=molecular_consequence,
                                 condition_omim_id=annotation_data.get('trait_omim'),
                                 clinvar_url=f"https://www.ncbi.nlm.nih.gov/clinvar/variation/{annotation_data.get('variation_id', '')}"
                             )
@@ -128,8 +143,8 @@ def home():
                             "hgvsc": annotation_data.get('transcript_hgvs'),
                             "gene_symbol": gene_symbol,
                             "review_status_stars": review_status_stars,
-                            "protein_change": annotation_data.get('protein_change'),
-                            "molecular_consequences": ', '.join(annotation_data.get('molecular_consequences', [])),
+                            "protein_change": protein_change,
+                            "molecular_consequences": molecular_consequence,
                             "condition_omim_id": annotation_data.get('trait_omim'),
                             "clinvar_url": f"https://www.ncbi.nlm.nih.gov/clinvar/variation/{annotation_data.get('variation_id', '')}",
                             "consensus_classification": annotation_data.get('clinical_significance', 'N/A'),
