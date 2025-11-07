@@ -11,14 +11,14 @@ def create_logger():
     logger = logging.getLogger('ClinVar_annotator_logger')
     logger.setLevel(logging.DEBUG)
 
-    # Set stream handler to debug
+    # Set stream handler to DEBUG
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(logging.DEBUG)
     # Create a formatter for stream handler
     stream_formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
     stream_handler.setFormatter(stream_formatter)
 
-    # Set rotating file handler 
+    # Set rotating file handler to DEBUG
     file_handler = RotatingFileHandler(str(parent_directory) + '/logs/ClinVar_annotator.log',
                                        maxBytes=500000,  # 500 KB
                                        backupCount=2)
@@ -33,5 +33,5 @@ def create_logger():
 
     return logger
 
-
+# Initialise the logger
 logger = create_logger()
