@@ -48,7 +48,7 @@
     <!--Page title-->
     <h1>ClinVar Annotator</h1>
     <!--Info message for the user-->
-    <p class="text-muted">Showing ClinVar-annotated variants from {{ filenames|join(', ') }}</p>
+    <p class="text-muted">Showing variants from <strong>{{ filenames|join(', ') }}</strong> annotated using ClinVar.</p>
 
     <!--Multi-select filters-->
     <div class="filter-controls">
@@ -117,7 +117,13 @@
                 <td>{{ pv.molecular_consequences }}</td>
                 <td>{{ pv.condition }}</td>
                 <td>{{ pv.condition_omim_id }}</td>
-                <td>{{ pv.clinvar_url }}</td>
+                <td>
+                    {% if pv.clinvar_url %}
+                    <a href="{{ pv.clinvar_url }}" target="_blank" class="clinvar-link">View in ClinVar</a>
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </td>
             </tr>
         {% endfor %}
         </tbody>
