@@ -12,9 +12,11 @@
     <!--Page title-->
     <h1>ClinVar Annotator</h1>
     <!--App description-->
-    <p>Annotate variants using data from ClinVar, and explore the results.</p>
+    <p><i>Annotate variants using data from ClinVar, and explore the results.</i></p>
     <!--Form to upload a VCF file (accepts .vcf files)-->
-    <p>Please upload a VCF (GRCh38 reference assembly):</p>
+    <p><strong>Please upload VCF file(s):</strong></p>
+    <!--Message to user to detail file specifications-->
+    <sup>Variants must be called against GRCh38. The filename(s) should reflect the patient ID (e.g., patient-A.vcf).</sup>
     <form method="POST" enctype="multipart/form-data">
         <input type="file" name="vcf_files" multiple accept=".vcf" class="form-control mb-3">
         <button type="submit" class="btn btn-primary">Upload</button>
