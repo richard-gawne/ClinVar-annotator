@@ -1,6 +1,6 @@
-
 import requests
 from typing import Dict, Optional, List
+import json
 
 class ClinVarSearch:
     """
@@ -60,10 +60,6 @@ class ClinVarSearch:
         return None
 
 
-
-
-
-
     def _search_clinvar(self, search_term: str, retmax: int = 10) -> List[str]:
         """Search ClinVar and return variant IDs"""
         search_url = f"{self.eutils_base}/esearch.fcgi"
@@ -98,16 +94,6 @@ class ClinVarSearch:
             if "result" not in data or variant_id not in data["result"]:
                 return None, None
 
-            data = response.json()
-
-            # 👉 ADD THIS LINE to print raw JSON
-            print("\n[RAW JSON RESPONSE]")
-            print(data)
-
-            if "result" not in data or variant_id not in data["result"]:
-                return None, None
-
-
             result = data["result"][variant_id]
             # Pass safely to parser (handles missing keys)
             annotations = self._parse_variant_summary(result, variant_id)
@@ -117,7 +103,27 @@ class ClinVarSearch:
             print(f"Error fetching variant details: {e}")
             return None, None
 
-    
+
+    def get_hgnc_id(self, ncbi_gene_id: str) -> Optional[str]:
+        """
+        Get HGNC ID using NCBI Gene ID from HGNC REST API.
+        """
+        url = f"https://rest.genenames.org/fetch/entrez_id/{ncbi_gene_id}"
+        headers = {"Accept": "application/json"}
+
+        try:
+            res = requests.get(url, headers=headers, timeout=10)
+            res.raise_for_status()
+            data = res.json()
+            docs = data.get("response", {}).get("docs", [])
+            if docs:
+                return docs[0].get("hgnc_id")
+        except Exception as e:
+            print(f"[HGNC API Error] {e}")
+        
+        return None
+
+
 
     def _parse_variant_summary(self, result: Dict, variant_id: str) -> Dict:
         """Parse and normalize ClinVar variant summary safely"""
@@ -154,9 +160,6 @@ class ClinVarSearch:
         annotations["allele_frequencies"] = allele_freqs
 
 
-
-
-
         # ---- Extract genomic location ----
         for var_set in result.get("variation_set", []):
             for loc in var_set.get("variation_loc", []):
@@ -168,13 +171,6 @@ class ClinVarSearch:
                     annotations["stop"] = str(loc.get("stop", "N/A"))
                     break
 
-        # ---- Extract gene data ----
-        for gene in result.get("genes", []):
-            annotations["genes"].append({
-                "symbol": gene.get("symbol", "N/A"),
-                "geneid": str(gene.get("geneid", "N/A")),
-                "strand": gene.get("strand", "N/A"),
-            })
 
         # ---- Extract germline classification ----
         germ = result.get("germline_classification", {})
@@ -192,10 +188,24 @@ class ClinVarSearch:
                     annotations["trait_omim"] = xref.get("db_id", "N/A")
                     break
 
+        
+
+        for gene in result.get("genes", []):
+            entrez_id = gene.get("geneid", "N/A")
+            hgnc_id = self.get_hgnc_id(entrez_id) if entrez_id != "N/A" else "N/A"
+
+            annotations["genes"].append({
+                "symbol": gene.get("symbol", "N/A"),
+                "geneid": str(entrez_id),
+                "strand": gene.get("strand", "N/A"),
+                "hgnc_id": hgnc_id or "N/A"
+            })
+
         return annotations
-
-
     
+
+
+
     def display_annotations(self, annotations: Dict):
         print("\n[CLINVAR VARIANT SUMMARY]")
         
@@ -222,7 +232,7 @@ class ClinVarSearch:
 
         print(f"\n[GENES]")
         for gene in annotations['genes']:
-            print(f"  - {gene['symbol']} (GeneID: {gene['geneid']}, Strand: {gene['strand']})")
+            print(f"  - {gene['symbol']} (GeneID: {gene['geneid']}, Strand: {gene['strand']}, HGNC ID: {gene['hgnc_id']})")
 
         print(f"\n[MOLECULAR CONSEQUENCES]")
         for consequence in annotations["molecular_consequences"]:
@@ -234,105 +244,11 @@ class ClinVarSearch:
             print(f"Gene: https://www.ncbi.nlm.nih.gov/gene/{annotations['genes'][0]['geneid']}")
 
 
-
-    def fetch_gnomad_frequencies(self, variant: str, dataset: str = "gnomad_r4") -> Optional[Dict]:
-        """
-        Query the gnomAD GraphQL API for allele frequencies.
-
-        Args:
-            variant: Variant in 'chr:pos:ref:alt' or 'chr-pos-ref-alt' format
-                     e.g. '1:219915839:G:A' or '1-219915839-G-A'
-            dataset: gnomAD dataset ID, e.g. 'gnomad_r4', 'gnomad_r3'
-
-        Returns:
-            Dict with exome/genome AC/AN/AF or None if not found / error.
-        """
-        # Normalise 'chr:pos:ref:alt' -> 'chr-pos-ref-alt' and strip leading "chr"
-        variant_id = variant.replace(":", "-")
-        if variant_id.lower().startswith("chr"):
-            variant_id = variant_id[3:]
-
-        query = """
-        query GnomadVariant($variantId: String!, $datasetId: DatasetId!) {
-          variant(variantId: $variantId, dataset: $datasetId) {
-            variant_id
-            reference_genome
-            chrom
-            pos
-            ref
-            alt
-            exome {
-              ac
-              an
-            }
-            genome {
-              ac
-              an
-            }
-          }
-        }
-        """
-
-        payload = {"query": query, "variables": {"variantId": variant_id, "datasetId": dataset}}
-
-        try:
-            resp = requests.post(self.gnomad_api, json=payload, timeout=30)
-            resp.raise_for_status()
-            body = resp.json()
-        except Exception as e:
-            print(f"Error calling gnomAD for {variant_id}: {e}")
-            return None
-
-        # GraphQL-level error
-        if body.get("errors"):
-            print(f"gnomAD GraphQL error for {variant_id}: {body['errors']}")
-            return None
-
-        v = body.get("data", {}).get("variant")
-        if not v:
-            print(f"No gnomAD record found for {variant_id}")
-            return None
-
-        exome = v.get("exome") or {}
-        genome = v.get("genome") or {}
-
-        def calc_af(block):
-            ac = block.get("ac")
-            an = block.get("an")
-            try:
-                if ac is None or an in (None, 0):
-                    return None
-                return float(ac) / float(an)
-            except Exception:
-                return None
-
-        return {
-            "variant_id": v.get("variant_id"),
-            "reference_genome": v.get("reference_genome"),
-            "chrom": v.get("chrom"),
-            "pos": v.get("pos"),
-            "ref": v.get("ref"),
-            "alt": v.get("alt"),
-            "exome": {
-                "ac": exome.get("ac"),
-                "an": exome.get("an"),
-                "af": calc_af(exome),
-            },
-            "genome": {
-                "ac": genome.get("ac"),
-                "an": genome.get("an"),
-                "af": calc_af(genome),
-            },
-        }
-
-
-
-
 def main():
     searcher = ClinVarSearch()
     
     print("\nEnter variant information:")
-    variant_input = input("\nHGVS for ClinVar lookup: ").strip()
+    variant_input = input("\nVariant: ").strip()
     
     if not variant_input:
         print("Error: No input provided")
@@ -341,24 +257,11 @@ def main():
     result = searcher.search_by_hgvs(variant_input)
 
     if result:
-        searcher.display_annotations(result)
-
-        # --- OPTIONAL: gnomAD lookup ---
-        gnomad_id = input("\ngnomAD variant (chr:pos:ref:alt) [optional]: ").strip()
-        if gnomad_id:
-            gnomad = searcher.fetch_gnomad_frequencies(gnomad_id)
-            if gnomad:
-                ex = gnomad["exome"]
-                gn = gnomad["genome"]
-                print("\n[GNOMAD ALLELE FREQUENCIES]")
-                print(f"Variant: {gnomad['variant_id']} ({gnomad['reference_genome']})")
-                if ex["af"] is not None:
-                    print(f"  Exomes : AC={ex['ac']} AN={ex['an']} AF={ex['af']:.6g}")
-                if gn["af"] is not None:
-                    print(f"  Genomes: AC={gn['ac']} AN={gn['an']} AF={gn['af']:.6g}")
+        annotations = result
+        searcher.display_annotations(annotations)
+        return annotations
     else:
         print("\nNo variant found or unable to retrieve annotations.")
-
 
     
 
