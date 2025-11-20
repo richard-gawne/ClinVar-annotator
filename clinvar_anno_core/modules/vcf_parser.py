@@ -1,15 +1,16 @@
 from pathlib import Path
+from clinvar_anno_core.utils.logger import logger
 
 def parse_vcf_file(vcf_filepath: Path, debug: bool=False):
     """
     Parse a VCF file and extract variants in the format: chrom:position:REF:ALT
     
     Args:
-        vcf_filepath: Path to the VCF file
-        debug: If True, print debugging information
+        - vcf_filepath: Path to the VCF file
+        - debug: If True, print debugging information
         
     Returns:
-         list of formatted variants
+        - list of formatted variants
 
     Raises:
 
@@ -18,23 +19,19 @@ def parse_vcf_file(vcf_filepath: Path, debug: bool=False):
     
     try:
         with open(vcf_filepath, 'r', encoding='utf-8-sig') as f:
+            logger.info(f"User provided input vcf file: {vcf_filepath}")
             for line_num, line in enumerate(f, 1):
                 # Remove any trailing whitespace and carriage returns
                 line = line.rstrip('\r\n')
                 
-                if debug:
-                    print(f"Line {line_num}: '{line[:100]}'")  # Print first 100 chars
-                
                 # Skip header lines
                 if line.startswith('#'):
-                    if debug:
-                        print(f"  -> Skipped (header)")
+                    logger.debug(f"  -> Skipped (header)")
                     continue
                 
                 # Skip empty lines
                 if not line.strip():
-                    if debug:
-                        print(f"  -> Skipped (empty)")
+                    logger.debug(f"  -> Skipped (empty)")
                     continue
                 
                 # Parse VCF line - handle both tab and space delimiters
@@ -44,9 +41,8 @@ def parse_vcf_file(vcf_filepath: Path, debug: bool=False):
                 if len(fields) < 5:
                     fields = line.split()
                 
-                if debug:
-                    print(f"  -> Number of fields: {len(fields)}")
-                    print(f"  -> Fields: {fields[:5] if len(fields) >= 5 else fields}")
+                logger.debug(f"  -> Number of fields: {len(fields)}")
+                logger.debug(f"  -> Fields: {fields[:5] if len(fields) >= 5 else fields}")
                 
                 if len(fields) >= 5:
                     # Ensures current line has at least 5 fields before extracting values
@@ -59,11 +55,9 @@ def parse_vcf_file(vcf_filepath: Path, debug: bool=False):
                     # Formats variants
                     variants.append(variant)
                     
-                    if debug:
-                        print(f"  -> Added variant: {variant}")
+                    logger.debug(f"  -> Added variant: {variant}")
                 else:
-                    if debug:
-                        print(f"  -> Skipped (insufficient fields: {len(fields)})")
+                    logger.debug(f"  -> Skipped (insufficient fields: {len(fields)})")
     
     except FileNotFoundError:
         print(f"Error: File {vcf_filepath} not found")
