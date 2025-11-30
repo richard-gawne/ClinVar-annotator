@@ -2,10 +2,11 @@ pipeline {
     agent any
 
     environment {
-        VENV_DIR = ".venv"
-        PIP_DISABLE_PIP_VERSION_CHECK = "1"
-        PYTHONUNBUFFERED = "1"
-        DOCKER_IMAGE_NAME = "clinvar-annotator"
+        CONDA_PREFIX = '/usr/local/miniconda3'   // Path to conda installation
+        CONDA_ENV_NAME = 'clinvar_anno_env'     // Your environment
+        PIP_DISABLE_PIP_VERSION_CHECK = '1'
+        PYTHONUNBUFFERED = '1'
+        DOCKER_IMAGE_NAME = 'clinvar-annotator'
     }
 
     stages {
@@ -16,14 +17,26 @@ pipeline {
             }
         }
 
-        stage('Set Up Python Environment') {
+        stage('Set Up Conda Environment') {
             steps {
                 sh '''
-                python3 -m venv ${VENV_DIR}
-                . ${VENV_DIR}/bin/activate
-                pip install --upgrade pip
-                pip install -r requirements.txt
-                pip install pytest pytest-cov
+                bash -c "
+                source ${CONDA_PREFIX}/etc/profile.d/conda.sh
+                conda env remove -n ${CONDA_ENV_NAME} || true
+                conda env create -f environment.yml
+                "
+                '''
+            }
+        }
+
+        stage('Install Package (pip install .)') {
+            steps {
+                sh '''
+                bash -c "
+                source ${CONDA_PREFIX}/etc/profile.d/conda.sh
+                conda activate ${CONDA_ENV_NAME}
+                pip install .
+                "
                 '''
             }
         }
@@ -31,8 +44,11 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
-                . ${VENV_DIR}/bin/activate
+                bash -c "
+                source ${CONDA_PREFIX}/etc/profile.d/conda.sh
+                conda activate ${CONDA_ENV_NAME}
                 pytest --cov=clinvar_anno_app tests/
+                "
                 '''
             }
         }
