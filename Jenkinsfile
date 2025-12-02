@@ -23,13 +23,11 @@ pipeline {
                 bash -c "
                     source ${CONDA_PREFIX}/etc/profile.d/conda.sh
 
-                    # Create env only if it doesn't exist
-                    if ! conda env list | grep -q ${CONDA_ENV_NAME}; then
-                        echo 'Creating conda environment...'
-                        conda env create -f environment.yml
-                    else
-                        echo 'Conda environment already exists.'
-                    fi
+                    # Remove existing environment if it exists
+                    conda env remove -n ${CONDA_ENV_NAME} -y || true
+
+                    # Create fresh environment
+                    conda env create -f environment.yml
                 "
                 '''
             }
