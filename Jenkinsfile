@@ -65,11 +65,11 @@ pipeline {
             steps {
                 echo 'Building Docker image...'
                 sh '''
-                    # Use sudo to ensure Jenkins can access the Docker daemon
-                    sudo docker build -t clinvar-annotator:latest .
+                    docker build -t ${DOCKER_IMAGE_NAME}:latest .
                 '''
             }
         }
+
     }
 
     post {
