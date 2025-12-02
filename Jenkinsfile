@@ -70,6 +70,7 @@ pipeline {
 
         stage('Upload Coverage to Codecov') {
             steps {
+                echo 'Building Docker image...'
                 sh '''
                 bash -c "
                 curl -Os https://uploader.codecov.io/latest/linux/codecov
@@ -79,7 +80,6 @@ pipeline {
                 '''
             }
         }
-    }
 
     post {
         always {
