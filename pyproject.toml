@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ClinVar-annotator"
 version = "0.1.0"
-description = "Tool for annotating variants using ClinVar, and exploring the results"
+description = "Annotate variants using ClinVar and explore the results"
 authors = [
     { name = "Richard Gawne" },
     { name = "Hadiya Khan" },
