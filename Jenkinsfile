@@ -35,7 +35,7 @@ pipeline {
             }
         }
 
-        stage('Install Package') {
+        stage('Install Packages') {
             steps {
                 sh '''
                 bash -c "
@@ -85,7 +85,7 @@ pipeline {
 
     post {
         always {
-            echo "✔ Pipeline completed."
+            echo "Pipeline completed."
         }
     }
 }
