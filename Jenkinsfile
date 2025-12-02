@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         CONDA_PREFIX = '/usr/local/miniconda3'   // Path to conda installation
-        CONDA_ENV_NAME = 'clinvar_anno_env'     // Your environment
+        CONDA_ENV_NAME = 'clinvar_anno_env'     // Conda environment
         PIP_DISABLE_PIP_VERSION_CHECK = '1'
         PYTHONUNBUFFERED = '1'
         DOCKER_IMAGE_NAME = 'clinvar-annotator'
