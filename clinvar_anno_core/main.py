@@ -132,7 +132,8 @@ class VariantAnnotationPipeline:
                 {
                     "symbol": gene.get('symbol', ''),
                     "geneid": gene.get('geneid', ''),
-                    "strand": gene.get('strand', '')
+                    "strand": gene.get('strand', ''),
+                    "hgnc_id": gene.get('hgnc_id', '')  
                 }
                 for gene in clinvar_data['genes']
             ]
@@ -169,10 +170,6 @@ class VariantAnnotationPipeline:
             annotation['gnomad_genome_af'] = matching_af.get('genome_af')
             annotation['gnomad_exome_af'] = matching_af.get('exome_af')
             annotation['gnomad_total_af'] = matching_af.get('total_af')
-        
-        # Add HGNC ID if available in ClinVar data
-        if 'hgnc_id' in clinvar_data:
-            annotation['hgnc_id'] = clinvar_data['hgnc_id']
         
         return annotation
     
