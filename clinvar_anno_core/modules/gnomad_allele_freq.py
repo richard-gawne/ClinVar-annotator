@@ -7,9 +7,9 @@ from the gnomAD database using its GraphQL API.
 import requests
 from pathlib import Path
 from typing import List, Optional, Dict
-from modules.vcf_parser import parse_vcf_file
+from clinvar_anno_core.modules.vcf_parser import parse_vcf_file
 from math import log10, floor
-from utils.logger import logger
+from clinvar_anno_core.utils.logger import logger
 
 
 def format_significant_figures(value: Optional[float], sig_figs: int = 4) -> Optional[str]:

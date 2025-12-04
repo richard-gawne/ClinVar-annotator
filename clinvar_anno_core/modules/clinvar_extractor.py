@@ -14,7 +14,7 @@ import json
 from typing import Dict, Optional, List
 import requests
 import time
-from utils.logger import logger
+from clinvar_anno_core.utils.logger import logger
 
 
 class ClinVarSearch:

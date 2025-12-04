@@ -14,11 +14,11 @@ from typing import List, Dict
 import json
 from datetime import datetime
 
-from modules.vcf_parser import parse_vcf_file
-from modules.variant_validation import HgvsConverter
-from modules.gnomad_allele_freq import extract_gnomad_afs_from_vcf
-from modules.clinvar_extractor import ClinVarSearch
-from utils.logger import logger
+from clinvar_anno_core.modules.vcf_parser import parse_vcf_file
+from clinvar_anno_core.modules.variant_validation import HgvsConverter
+from clinvar_anno_core.modules.gnomad_allele_freq import extract_gnomad_afs_from_vcf
+from clinvar_anno_core.modules.clinvar_extractor import ClinVarSearch
+from clinvar_anno_core.utils.logger import logger
 
 class VariantAnnotationPipeline:
     """

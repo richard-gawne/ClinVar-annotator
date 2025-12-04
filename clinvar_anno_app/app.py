@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
+from pathlib import Path
 from clinvar_anno_app.models import db, Patient, Variant, PatientVariant
-from clinvar_anno_core.main import run_annotation_pipeline
+from clinvar_anno_core.main import VariantAnnotationPipeline
 import os
 from werkzeug.utils import secure_filename
 from clinvar_anno_core.utils.logger import logger
@@ -10,7 +11,9 @@ app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
 # SQLite database configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///clinvar_annotator.db'
+basedir = os.path.abspath(os.path.dirname(__file__))
+db_path = os.path.join(basedir, 'clinvar_annotator.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Configure upload folder for temporary VCF storage
@@ -25,6 +28,8 @@ with app.app_context():
     db.create_all()
     logger.info("Database initialised (or it already existed).")
 
+# Initialise the ClinVar annotation pipeline
+annotation_pipeline = VariantAnnotationPipeline()
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -60,7 +65,7 @@ def home():
                 logger.debug(f"Processed patient ID from filename: {patient_id}")
 
                 # Run annotation pipeline on the saved file
-                annotated_variants = run_annotation_pipeline(filepath, genome_build="GRCh38")
+                annotated_variants = annotation_pipeline.process_vcf(Path(filepath))
                 logger.info(f"Annotation pipeline completed for {filename} with {len(annotated_variants)} variants.")
 
                 if not annotated_variants:
@@ -122,8 +127,10 @@ def home():
                                 hgvsg=annotation_data.get('genomic_hgvs'),
                                 hgvsc=annotation_data.get('transcript_hgvs'),
                                 gene_symbol=gene_symbol,
+                                hgnc_id=annotation_data.get('hgnc_id'),
                                 consensus_classification=annotation_data.get('clinical_significance', 'N/A'),
                                 review_status_stars=review_status_stars,
+                                gnomad_af=annotation_data.get('gnomad_total_af'),
                                 protein_change=protein_change,
                                 molecular_consequences=molecular_consequence,
                                 condition=annotation_data.get('trait_name', 'N/A'),
@@ -180,9 +187,11 @@ def home():
                 "hgvsg": variant.hgvsg,
                 "hgvsc": variant.hgvsc,
                 "gene_symbol": variant.gene_symbol,
+                "hgnc_id": getattr(variant, "hgnc_id"),
                 "consensus_classification": getattr(variant, "consensus_classification", "N/A"),
                 "review_status_stars": variant.review_status_stars,
                 "protein_change": getattr(variant, "protein_change", "N/A"),
+                "gnomad_af": getattr(variant, "gnomad_af"),
                 "molecular_consequences": getattr(variant, "molecular_consequences", "N/A"),
                 "condition": getattr(variant, "condition", "N/A"),
                 "condition_omim_id": getattr(variant, "condition_omim_id", "N/A"),
