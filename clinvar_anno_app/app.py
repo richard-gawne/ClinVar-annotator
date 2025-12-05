@@ -124,7 +124,7 @@ def home():
                         # If it doesn't already exist, add it to the database
                         if not variant_obj:
                             variant_obj = Variant(
-                                vcf_description=formatted_variant,
+                                vcf_description=f"GRCh38:{formatted_variant}",
                                 hgvsg=annotation_data.get('genomic_hgvs'),
                                 hgvsc=annotation_data.get('transcript_hgvs'),
                                 gene_symbol=gene_symbol,

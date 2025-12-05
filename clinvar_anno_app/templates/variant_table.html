@@ -50,7 +50,7 @@
     <!--Page title-->
     <h1>ClinVar Annotator</h1>
     <!--Info message for the user-->
-    <p class="text-muted">Showing variants from <strong>{{ filenames|join(', ') }}</strong> annotated using ClinVar.</p>
+    <p class="text-muted">Showing variants annotated using ClinVar.</p>
 
     <!--Multi-select filters-->
     <div class="filter-controls">
@@ -246,11 +246,29 @@ $(function() {
             .map(([key, count]) => `${count}× ${key}`)
             .join(', ');
 
-        $('#summary').text(
-            `The table currently shows: ${patients.size} patient(s) with ${variants.size} variant(s)` +
-            (clsSummary ? ` [${clsSummary}]` : '') +
-            ` in ${genes.size} gene(s)`
-        );
+        // Sort classifications by count (desc)
+        const sortedClassifications = Object.entries(classificationCounts)
+            .sort((a, b) => b[1] - a[1])
+            .map(([cls, count]) => `${count}× ${cls}`)
+            .join(', ');
+
+        $('#summary').html(`
+            <div style="font-weight:600; color:#222;">The table currently shows:</div>
+
+            <div style="margin-left:1.5rem; color:#333;">
+                <span style="font-weight:700; color:#000;">${patients.size}</span>
+                <span style="color:#555;">patient(s)</span>,
+                <span style="font-weight:700; color:#000;">${variants.size}</span>
+                <span style="color:#555;">variant(s)</span>,
+                <span style="font-weight:700; color:#000;">${genes.size}</span>
+                <span style="color:#555;">gene(s)</span>
+            </div>
+
+            <div style="margin-left:1.5rem; color:#333; margin-top:2px;">
+                <span style="font-weight:600; color:#000;">Classifications:</span>
+                <span style="color:#444;">${sortedClassifications}</span>
+            </div>
+        `);
     }
 
     table.on('draw search.dt', updateSummary);
