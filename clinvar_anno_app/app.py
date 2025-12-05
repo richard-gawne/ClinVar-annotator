@@ -86,9 +86,10 @@ def home():
                 for variant_key, annotation_data in annotated_variants.items():
                     try:
                         # Parse variant info into VCF description format
-                        parts = variant_key.split(':')
-                        chrom, pos, ref, alt = parts
-                        formatted_variant = f"GRCh38:{chrom}:{pos}:{ref}:{alt}"
+                        # parts = variant_key.split(':')
+                        # chrom, pos, ref, alt = parts
+                        # formatted_variant = f"GRCh38:{chrom}:{pos}:{ref}:{alt}"
+                        formatted_variant = variant_key
 
                         # Extract gene symbol
                         gene_symbol = None
@@ -127,7 +128,7 @@ def home():
                                 hgvsg=annotation_data.get('genomic_hgvs'),
                                 hgvsc=annotation_data.get('transcript_hgvs'),
                                 gene_symbol=gene_symbol,
-                                hgnc_id=annotation_data.get('hgnc_id'),
+                                hgnc_id=annotation_data["genes"][0].get("hgnc_id"),
                                 consensus_classification=annotation_data.get('clinical_significance', 'N/A'),
                                 review_status_stars=review_status_stars,
                                 gnomad_af=annotation_data.get('gnomad_total_af'),

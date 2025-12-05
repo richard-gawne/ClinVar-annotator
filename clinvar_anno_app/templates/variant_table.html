@@ -146,7 +146,7 @@ $(function() {
         patient: 0,
         variant: 1,
         gene: 4,
-        classification: 5,
+        classification: 6,
     };
 
     const table = $table.DataTable({
@@ -242,8 +242,8 @@ $(function() {
             patients.add(data[i][0]);
             variants.add(data[i][1]);
             genes.add(data[i][4]);
-            const cls = data[i][5];
-            classifications.add(data[i][5]);
+            const cls = data[i][6];
+            classifications.add(data[i][6]);
             classificationCounts[cls] = (classificationCounts[cls] || 0) + 1;
         }
 
