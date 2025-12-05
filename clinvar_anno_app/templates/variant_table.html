@@ -44,7 +44,7 @@
     </style>
 </head>
 <body>
-<div class="container-fluid m-5">
+<div class="container-fluid">
     <!--Home button-->
     <a href="{{ url_for('home') }}" class="btn btn-primary m-2">← Home</a>
     <!--Page title-->
@@ -100,9 +100,7 @@
                 <th>Review Status</th>
                 <th>Protein Change</th>
                 <th>Allele frequency (gnomAD)</th>
-                <th>Molecular Consequences</th>
                 <th>Condition</th>
-                <th>OMIM Disorder Code</th>
                 <th>ClinVar URL</th>
             </tr>
         </thead>
@@ -120,9 +118,7 @@
                 <td>{{ pv.review_status_stars }}</td>
                 <td>{{ pv.protein_change }}</td>
                 <td>{{ pv.gnomad_af }}</td>
-                <td>{{ pv.molecular_consequences }}</td>
                 <td>{{ pv.condition }}</td>
-                <td>{{ pv.condition_omim_id }}</td>
                 <td>
                     {% if pv.clinvar_url %}
                     <a href="{{ pv.clinvar_url }}" target="_blank" class="clinvar-link">View in ClinVar</a>
@@ -158,8 +154,7 @@ $(function() {
             text: 'Download CSV',
             title: 'ClinVar-annotated-variants',
             filename: 'ClinVar-annotated-variants'
-        }],
-        pageLength: 25
+        }]
     });
 
     // Populate multi-select dropdowns with unique values
