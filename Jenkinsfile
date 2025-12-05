@@ -7,6 +7,7 @@ pipeline {
         PIP_DISABLE_PIP_VERSION_CHECK = '1'
         PYTHONUNBUFFERED = '1'
         DOCKER_IMAGE_NAME = 'clinvar-annotator'
+        CODECOV_TOKEN = credentials('Codecov')
     }
 
     stages {
@@ -61,14 +62,16 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Upload Coverage to Codecov') {
             steps {
-                echo 'Building Docker image...'
-                sh '''
-                    docker build -t ${DOCKER_IMAGE_NAME}:latest .
-                '''
+                withCredentials([string(credentialsId: 'CODECOV_TOKEN', variable: 'CODECOV_TOKEN')]) {
+                    sh '''
+                    codecov -t $CODECOV_TOKEN -f coverage.xml
+                    '''
+                }
             }
         }
+
 
     }
 
