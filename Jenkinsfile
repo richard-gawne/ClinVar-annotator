@@ -56,7 +56,7 @@ pipeline {
                     conda activate ${CONDA_ENV_NAME}
 
                     echo 'Running pytest...'
-                    pytest --maxfail=1 --disable-warnings --cov=clinvar_anno_app tests/
+                    pytest --maxfail=1 --disable-warnings --cov=clinvar_anno_core --cov=clinvar_anno_app --cov-report=xml tests/
                 "
                 '''
             }
