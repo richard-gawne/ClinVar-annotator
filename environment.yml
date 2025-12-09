@@ -32,4 +32,3 @@ dependencies:
       - xmltodict==1.0.2
       - pytest==9.0.1
       - pytest-cov==7.0.0
-      - codecov==2.1.13

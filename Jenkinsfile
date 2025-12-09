@@ -65,7 +65,9 @@ pipeline {
         stage('Upload Coverage to Codecov') {
             steps {
                 sh '''
-                codecov -t $CODECOV_TOKEN -f coverage.xml
+                    curl -Os https://uploader.codecov.io/latest/linux/codecov
+                    chmod +x codecov
+                    ./codecov -t ${CODECOV_TOKEN} -f coverage.xml
                 '''
             }
         }
