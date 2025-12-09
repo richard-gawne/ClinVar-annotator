@@ -64,14 +64,11 @@ pipeline {
 
         stage('Upload Coverage to Codecov') {
             steps {
-                withCredentials([string(credentialsId: 'CODECOV_TOKEN', variable: 'CODECOV_TOKEN')]) {
-                    sh '''
-                    codecov -t $CODECOV_TOKEN -f coverage.xml
-                    '''
-                }
+                sh '''
+                codecov -t $CODECOV_TOKEN -f coverage.xml
+                '''
             }
         }
-
 
     }
 
