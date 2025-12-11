@@ -8,7 +8,7 @@ both genomic (g.) and transcript (c.) HGVS formats.
 import json
 from typing import Dict, Optional, Tuple, List
 import requests
-from utils.logger import logger
+from clinvar_anno_core.utils.logger import logger
 
 
 class HgvsConverter:
