@@ -1,16 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <!--Title to appear in broswer tab-->
     <title>ClinVar Annotator</title>
 
     <!--External CSS styling (Bootstrap, DataTables, Select2)-->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+    />
 
     <!--Additional JavaScript functionalities-->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -21,238 +36,292 @@
 
     <!--Custom styling-->
     <style>
-        .select2-container {
-            width: 100% !important;
-        }
-        .filter-controls {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .filter-row {
-            margin-bottom: 10px;
-        }
-        .filter-row label {
-            font-weight: 600;
-            margin-bottom: 5px;
-            display: block;
-        }
-        .clear-filters-btn {
-            margin-top: 10px;
-        }
+      .select2-container {
+        width: 100% !important;
+      }
+      .filter-controls {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+      .filter-row {
+        margin-bottom: 10px;
+      }
+      .filter-row label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        display: block;
+      }
+      .clear-filters-btn {
+        margin-top: 10px;
+      }
     </style>
-</head>
-<body>
-<div class="container-fluid">
-    <!--Home button-->
-    <a href="{{ url_for('home') }}" class="btn btn-primary m-2">← Home</a>
-    <!--Page title-->
-    <h1>ClinVar Annotator</h1>
-    <!--Info message for the user-->
-    <p class="text-muted">Showing variants annotated using ClinVar.</p>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <!--Home button-->
+      <a href="{{ url_for('home') }}" class="btn btn-primary m-2">← Home</a>
+      <!--Page title-->
+      <h1>ClinVar Annotator</h1>
+      <!--Info message for the user-->
+      <p class="text-muted">Showing variants annotated using ClinVar.</p>
 
-    <!--Multi-select filters-->
-    <div class="filter-controls">
+      <!--Multi-select filters-->
+      <div class="filter-controls">
         <h5>Filters</h5>
         <div class="row">
-            <div class="col-md-3 filter-row">
-                <label for="filter-patient">Patient</label>
-                <select id="filter-patient" class="form-select" multiple="multiple"></select>
-            </div>
-            <div class="col-md-3 filter-row">
-                <label for="filter-variant">Variant</label>
-                <select id="filter-variant" class="form-select" multiple="multiple"></select>
-            </div>
-            <div class="col-md-3 filter-row">
-                <label for="filter-gene">Gene Symbol</label>
-                <select id="filter-gene" class="form-select" multiple="multiple"></select>
-            </div>
-            <div class="col-md-3 filter-row">
-                <label for="filter-classification">Consensus Classification</label>
-                <select id="filter-classification" class="form-select" multiple="multiple"></select>
-            </div>
+          <div class="col-md-3 filter-row">
+            <label for="filter-patient">Patient</label>
+            <select
+              id="filter-patient"
+              class="form-select"
+              multiple="multiple"
+            ></select>
+          </div>
+          <div class="col-md-3 filter-row">
+            <label for="filter-variant">Variant</label>
+            <select
+              id="filter-variant"
+              class="form-select"
+              multiple="multiple"
+            ></select>
+          </div>
+          <div class="col-md-3 filter-row">
+            <label for="filter-gene">Gene Symbol</label>
+            <select
+              id="filter-gene"
+              class="form-select"
+              multiple="multiple"
+            ></select>
+          </div>
+          <div class="col-md-3 filter-row">
+            <label for="filter-classification">Consensus Classification</label>
+            <select
+              id="filter-classification"
+              class="form-select"
+              multiple="multiple"
+            ></select>
+          </div>
         </div>
         <!--New row-->
         <div class="row">
-            <!--Clear filters button-->
-            <div class="col-md-12 filter-row">
-                <button id="clear-filters" class="btn btn-secondary clear-filters-btn">Clear All Filters</button>
-            </div>
+          <!--Clear filters button-->
+          <div class="col-md-12 filter-row">
+            <button
+              id="clear-filters"
+              class="btn btn-secondary clear-filters-btn"
+            >
+              Clear All Filters
+            </button>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <!--Message to summarise tallies of patients, variants, genes, and classifications (JS logic below)-->
-    <p id="summary" class="fw-bold text-primary"></p>
+      <!--Message to summarise tallies of patients, variants, genes, and classifications (JS logic below)-->
+      <p id="summary" class="fw-bold text-primary"></p>
 
-    <!--Table-->
-    <table id="variants" class="display table table-striped table-bordered" style="width:100%">
+      <!--Table-->
+      <table
+        id="variants"
+        class="display table table-striped table-bordered"
+        style="width: 100%"
+      >
         <!--Column headers-->
         <thead>
-            <tr>
-                <th>Patient</th>
-                <th>Variant (VCF desc.)</th>
-                <th>Variant (HGVSg)</th>
-                <th>Variant (HGVSc)</th>
-                <th>Gene Symbol</th>
-                <th>HGNC ID</th>
-                <th>Consensus Classification</th>
-                <th>Review Status</th>
-                <th>Protein Change</th>
-                <th>Allele frequency (gnomAD)</th>
-                <th>Condition</th>
-                <th>ClinVar URL</th>
-            </tr>
+          <tr>
+            <th>Patient</th>
+            <th>Variant (VCF desc.)</th>
+            <th>Variant (HGVSg)</th>
+            <th>Variant (HGVSc)</th>
+            <th>Gene Symbol</th>
+            <th>HGNC ID</th>
+            <th>Consensus Classification</th>
+            <th>Review Status</th>
+            <th>Protein Change</th>
+            <th>Allele frequency (gnomAD)</th>
+            <th>Condition</th>
+            <th>ClinVar URL</th>
+          </tr>
         </thead>
         <!--Loop through elements in patient_variants object to place data in each row-->
         <tbody>
-        {% for pv in patient_variants %}
-            <tr>
-                <td>{{ pv.patient_id }}</td>
-                <td>{{ pv.variant }}</td>
-                <td>{{ pv.hgvsg }}</td>
-                <td>{{ pv.hgvsc }}</td>
-                <td>{{ pv.gene_symbol }}</td>
-                <td>{{ pv.hgnc_id }}</td>
-                <td>{{ pv.consensus_classification }}</td>
-                <td>{{ pv.review_status_stars }}</td>
-                <td>{{ pv.protein_change }}</td>
-                <td>{{ pv.gnomad_af }}</td>
-                <td>{{ pv.condition }}</td>
-                <td>
-                    {% if pv.clinvar_url %}
-                    <a href="{{ pv.clinvar_url }}" target="_blank" class="clinvar-link">View in ClinVar</a>
-                    {% else %}
-                    N/A
-                    {% endif %}
-                </td>
-            </tr>
-        {% endfor %}
+          {% for pv in patient_variants %}
+          <tr>
+            <td>{{ pv.patient_id }}</td>
+            <td>{{ pv.variant }}</td>
+            <td>{{ pv.hgvsg }}</td>
+            <td>{{ pv.hgvsc }}</td>
+            <td>{{ pv.gene_symbol }}</td>
+            <td>{{ pv.hgnc_id }}</td>
+            <td>{{ pv.consensus_classification }}</td>
+            <td>{{ pv.review_status_stars }}</td>
+            <td>{{ pv.protein_change }}</td>
+            <td>{{ pv.gnomad_af }}</td>
+            <td>{{ pv.condition }}</td>
+            <td>
+              {% if pv.clinvar_url %}
+              <a
+                href="{{ pv.clinvar_url }}"
+                target="_blank"
+                class="clinvar-link"
+                >View in ClinVar</a
+              >
+              {% else %} N/A {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
         </tbody>
-    </table>
-</div>
+      </table>
+    </div>
 
-<script>
-$(function() {
-    const $table = $('#variants');
-    if (!$table.length) return;
+    <script>
+      $(function () {
+        const $table = $("#variants");
+        if (!$table.length) return;
 
-    // Column indices for multi-select filters
-    const filterColumns = {
-        patient: 0,
-        variant: 1,
-        gene: 4,
-        classification: 6,
-    };
+        // Column indices for multi-select filters
+        const filterColumns = {
+          patient: 0,
+          variant: 1,
+          gene: 4,
+          classification: 6,
+        };
 
-    const table = $table.DataTable({
-        pageLength: 25,
-        dom: 'Bfrtip',
-        stateSave: true,
-        buttons: [{
-            extend: 'csv',
-            text: 'Download CSV',
-            title: 'ClinVar-annotated-variants',
-            filename: 'ClinVar-annotated-variants'
-        }]
-    });
+        const table = $table.DataTable({
+          pageLength: 25,
+          dom: "Bfrtip",
+          stateSave: true,
+          buttons: [
+            {
+              extend: "csv",
+              text: "Download CSV",
+              title: "ClinVar-annotated-variants",
+              filename: "ClinVar-annotated-variants",
+            },
+          ],
+        });
 
-    // Populate multi-select dropdowns with unique values
-    function populateSelect(columnIndex, selectId) {
-        const uniqueValues = new Set();
-        table.column(columnIndex).data().each(function(val) {
-            if (val && val.trim() !== '') {
+        // Populate multi-select dropdowns with unique values
+        function populateSelect(columnIndex, selectId) {
+          const uniqueValues = new Set();
+          table
+            .column(columnIndex)
+            .data()
+            .each(function (val) {
+              if (val && val.trim() !== "") {
                 uniqueValues.add(val.trim());
-            }
-        });
+              }
+            });
 
-        const $select = $(selectId);
-        const sortedValues = Array.from(uniqueValues).sort();
-        
-        sortedValues.forEach(function(val) {
+          const $select = $(selectId);
+          const sortedValues = Array.from(uniqueValues).sort();
+
+          sortedValues.forEach(function (val) {
             $select.append(new Option(val, val, false, false));
-        });
+          });
 
-        // Initialize Select2
-        $select.select2({
-            theme: 'bootstrap-5',
-            placeholder: 'Select...',
+          // Initialize Select2
+          $select.select2({
+            theme: "bootstrap-5",
+            placeholder: "Select...",
             allowClear: true,
-            closeOnSelect: false
+            closeOnSelect: false,
+          });
+        }
+
+        // Populate all multi-select dropdowns
+        populateSelect(filterColumns.patient, "#filter-patient");
+        populateSelect(filterColumns.variant, "#filter-variant");
+        populateSelect(filterColumns.gene, "#filter-gene");
+        populateSelect(filterColumns.classification, "#filter-classification");
+
+        // Custom filtering function for multi-select
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+          // Get selected values for each filter
+          const selectedPatients = $("#filter-patient").val() || [];
+          const selectedVariants = $("#filter-variant").val() || [];
+          const selectedGenes = $("#filter-gene").val() || [];
+          const selectedClassifications =
+            $("#filter-classification").val() || [];
+
+          // Check each filter - if filter has selections, row must match one of them
+          if (
+            selectedPatients.length > 0 &&
+            !selectedPatients.includes(data[filterColumns.patient])
+          ) {
+            return false;
+          }
+          if (
+            selectedVariants.length > 0 &&
+            !selectedVariants.includes(data[filterColumns.variant])
+          ) {
+            return false;
+          }
+          if (
+            selectedGenes.length > 0 &&
+            !selectedGenes.includes(data[filterColumns.gene])
+          ) {
+            return false;
+          }
+          if (
+            selectedClassifications.length > 0 &&
+            !selectedClassifications.includes(
+              data[filterColumns.classification]
+            )
+          ) {
+            return false;
+          }
+
+          return true;
         });
-    }
 
-    // Populate all multi-select dropdowns
-    populateSelect(filterColumns.patient, '#filter-patient');
-    populateSelect(filterColumns.variant, '#filter-variant');
-    populateSelect(filterColumns.gene, '#filter-gene');
-    populateSelect(filterColumns.classification, '#filter-classification');
+        // Apply filters when selections change
+        $(
+          "#filter-patient, #filter-variant, #filter-gene, #filter-classification"
+        ).on("change", function () {
+          table.draw();
+        });
 
-    // Custom filtering function for multi-select
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        // Get selected values for each filter
-        const selectedPatients = $('#filter-patient').val() || [];
-        const selectedVariants = $('#filter-variant').val() || [];
-        const selectedGenes = $('#filter-gene').val() || [];
-        const selectedClassifications = $('#filter-classification').val() || [];
+        // Clear all filters button
+        $("#clear-filters").on("click", function () {
+          $(
+            "#filter-patient, #filter-variant, #filter-gene, #filter-classification"
+          )
+            .val(null)
+            .trigger("change");
+          table.draw();
+        });
 
-        // Check each filter - if filter has selections, row must match one of them
-        if (selectedPatients.length > 0 && !selectedPatients.includes(data[filterColumns.patient])) {
-            return false;
-        }
-        if (selectedVariants.length > 0 && !selectedVariants.includes(data[filterColumns.variant])) {
-            return false;
-        }
-        if (selectedGenes.length > 0 && !selectedGenes.includes(data[filterColumns.gene])) {
-            return false;
-        }
-        if (selectedClassifications.length > 0 && !selectedClassifications.includes(data[filterColumns.classification])) {
-            return false;
-        }
+        // Live summary
+        function updateSummary() {
+          const data = table.rows({ filter: "applied" }).data();
+          const patients = new Set();
+          const variants = new Set();
+          const genes = new Set();
+          const classifications = new Set();
+          const classificationCounts = {};
 
-        return true;
-    });
-
-    // Apply filters when selections change
-    $('#filter-patient, #filter-variant, #filter-gene, #filter-classification').on('change', function() {
-        table.draw();
-    });
-
-    // Clear all filters button
-    $('#clear-filters').on('click', function() {
-        $('#filter-patient, #filter-variant, #filter-gene, #filter-classification').val(null).trigger('change');
-        table.draw();
-    });
-
-    // Live summary
-    function updateSummary() {
-        const data = table.rows({ filter: 'applied' }).data();
-        const patients = new Set();
-        const variants = new Set();
-        const genes = new Set();
-        const classifications = new Set();
-        const classificationCounts = {};
-
-        for (let i = 0; i < data.length; i++) {
+          for (let i = 0; i < data.length; i++) {
             patients.add(data[i][0]);
             variants.add(data[i][1]);
             genes.add(data[i][4]);
             const cls = data[i][6];
             classifications.add(data[i][6]);
             classificationCounts[cls] = (classificationCounts[cls] || 0) + 1;
-        }
+          }
 
-        const clsSummary = Object.entries(classificationCounts)
+          const clsSummary = Object.entries(classificationCounts)
             .map(([key, count]) => `${count}× ${key}`)
-            .join(', ');
+            .join(", ");
 
-        // Sort classifications by count (desc)
-        const sortedClassifications = Object.entries(classificationCounts)
+          // Sort classifications by count (desc)
+          const sortedClassifications = Object.entries(classificationCounts)
             .sort((a, b) => b[1] - a[1])
             .map(([cls, count]) => `${count}× ${cls}`)
-            .join(', ');
+            .join(", ");
 
-        $('#summary').html(`
+          $("#summary").html(`
             <div style="font-weight:600; color:#222;">The table currently shows:</div>
 
             <div style="margin-left:1.5rem; color:#333;">
@@ -269,12 +338,11 @@ $(function() {
                 <span style="color:#444;">${sortedClassifications}</span>
             </div>
         `);
-    }
+        }
 
-    table.on('draw search.dt', updateSummary);
-    updateSummary();
-});
-</script>
-
-</body>
+        table.on("draw search.dt", updateSummary);
+        updateSummary();
+      });
+    </script>
+  </body>
 </html>

@@ -1,3 +1,5 @@
+"""Database models for ClinVar Annotator Flask application."""
+
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
