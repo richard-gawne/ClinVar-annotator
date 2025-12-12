@@ -1,25 +1,18 @@
-"""Database models for ClinVar Annotator application."""
-
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-
 class Patient(db.Model):
     """Patient identifiers"""
-
     __tablename__ = "patient"
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.String, unique=True, nullable=False)
 
-    variants = db.relationship(
-        "PatientVariant", back_populates="patient", cascade="all, delete-orphan"
-    )
+    variants = db.relationship("PatientVariant", back_populates="patient", cascade="all, delete-orphan")
 
 
 class Variant(db.Model):
     """Variant descriptions with ClinVar annotations"""
-
     __tablename__ = "variant"
     id = db.Column(db.Integer, primary_key=True)
     vcf_description = db.Column(db.String, nullable=False)
@@ -36,14 +29,11 @@ class Variant(db.Model):
     condition_omim_id = db.Column(db.String)
     clinvar_url = db.Column(db.String)
 
-    patient_links = db.relationship(
-        "PatientVariant", back_populates="variant", cascade="all, delete-orphan"
-    )
+    patient_links = db.relationship("PatientVariant", back_populates="variant", cascade="all, delete-orphan")
 
 
 class PatientVariant(db.Model):
-    """Association table between Patients and Variants"""
-
+    
     __tablename__ = "patient_variant"
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey("patient.id"), nullable=False)
