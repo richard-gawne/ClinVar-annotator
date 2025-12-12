@@ -1,3 +1,5 @@
+"""Database models for ClinVar Annotator Flask application."""
+
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -19,9 +21,13 @@ class Variant(db.Model):
     hgvsg = db.Column(db.String)
     hgvsc = db.Column(db.String)
     gene_symbol = db.Column(db.String)
+    hgnc_id = db.Column(db.String)
+    consensus_classification = db.Column(db.String)
     review_status_stars = db.Column(db.String)
     protein_change = db.Column(db.String)
+    gnomad_af = db.Column(db.String)
     molecular_consequences = db.Column(db.String)
+    condition = db.Column(db.String)
     condition_omim_id = db.Column(db.String)
     clinvar_url = db.Column(db.String)
 
