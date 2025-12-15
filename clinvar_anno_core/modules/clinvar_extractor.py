@@ -37,7 +37,6 @@ class ClinVarSearch:
         search_timeout (int): Timeout in seconds for API requests
     """
 
-
     def __init__(self, search_timeout: int = 30):
         """
         Initialize the ClinVarSearch object with API endpoints and configuration.
@@ -45,11 +44,17 @@ class ClinVarSearch:
         Args:
             search_timeout (int): Timeout in seconds for API requests. Defaults to 30.
         """
-        self.eutils_base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"  # Base URL for NCBI E-utilities, used for searching and fetching data from ClinVar
-        self.clinvar_summary_url = ("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi")  # Specific endpoint for retrieving ClinVar summaries by ID 
-        self.gnomad_api_url = "https://gnomad.broadinstitute.org/api"  # GraphQL API endpoint for querying variant frequency data from gnomAD
-        self.search_timeout = search_timeout  # Maximum number of variant search results to retrieve from the ClinVar API
-        
+        # Base URL for NCBI E-utilities, used for searching and fetching data from ClinVar
+        self.eutils_base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
+
+        # Specific endpoint for retrieving ClinVar summaries by ID
+        self.clinvar_summary_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
+
+        # GraphQL API endpoint for querying variant frequency data from gnomAD
+        self.gnomad_api_url = "https://gnomad.broadinstitute.org/api"
+
+        # Maximum number of variant search results to retrieve from the ClinVar API
+        self.search_timeout = search_timeout
 
     def search_by_hgvs(self, hgvs_notation: str) -> Optional[Dict]:
         """
@@ -98,7 +103,9 @@ class ClinVarSearch:
             return None
 
         # Retrieve details for the first matching variant
-        primary_variant_id = variant_id_list[0]  # Take the first variant ID from the list of matched results
+        primary_variant_id = variant_id_list[
+            0
+        ]  # Take the first variant ID from the list of matched results
         if len(variant_id_list) > 1:
             logger.warning(
                 f"Multiple ClinVar variants found for {hgvs_notation}; "
@@ -109,25 +116,20 @@ class ClinVarSearch:
         # Calls the method to fetch annotation data
         variant_annotations = self.fetch_variant_details(primary_variant_id)
         # Validate that meaningful annotations were retrieved
-        if (
-            variant_annotations
-            and variant_annotations.get("variation_name") != "N/A"
-        ):
+        if variant_annotations and variant_annotations.get("variation_name") != "N/A":
             logger.info(
                 f"Successfully retrieved annotations for variant: "
                 f"{variant_annotations.get('variation_name')}"
             )
             return variant_annotations
 
-        logger.warning(
-            f"No valid ClinVar summary retrieved for HGVS: {hgvs_notation}"
-        )
+        logger.warning(f"No valid ClinVar summary retrieved for HGVS: {hgvs_notation}")
         return None
 
     def search_clinvar(self, search_term: str = None) -> List[str]:
         """
         Execute ClinVar search query and return list of matching variant IDs.
-        This method constructs and executes an esearch query against the ClinVar 
+        This method constructs and executes an esearch query against the ClinVar
         database using the provided search term.
 
         Args:
@@ -150,18 +152,16 @@ class ClinVarSearch:
         try:
             # Make a GET request to the ClinVar ESearch API with timeout
             response = requests.get(
-                search_url,
-                params=search_params,
-                timeout=self.search_timeout
+                search_url, params=search_params, timeout=self.search_timeout
             )
 
             # If the HTTP response is successful, parse the JSON content of the response
             if response.status_code == 200:
                 search_data = response.json()
-                
+
                 # Attempts to extract the list of variant IDs from the response
                 id_list = search_data.get("esearchresult", {}).get("idlist", [])
-                
+
                 # Checks if any variant ID was found in the search result
                 if id_list:
                     logger.debug(f"Search returned {len(id_list)} variant IDs")
@@ -169,13 +169,16 @@ class ClinVarSearch:
                 else:
                     logger.warning("No variant IDs found in ClinVar search response")
             else:
-                logger.error(f"ClinVar search failed with status code: {response.status_code}")
+                logger.error(
+                    f"ClinVar search failed with status code: {response.status_code}"
+                )
 
         # Handle timeout
         except requests.exceptions.Timeout:
             logger.error(
-                f"Search request timed out after {self.search_timeout} seconds")
-            
+                f"Search request timed out after {self.search_timeout} seconds"
+            )
+
         # Handle any other HTTP related errors
         except requests.exceptions.RequestException as request_error:
             logger.error(f"Search request failed: {request_error}")
@@ -183,13 +186,12 @@ class ClinVarSearch:
         # Handle failure when decoding the JSON response
         except json.JSONDecodeError as json_error:
             logger.error(f"Failed to parse search response JSON: {json_error}")
-        
+
         # Catch any other unanticipated errors to prevent crashes
         except Exception as unexpected_error:
             logger.error(f"Unexpected error during search: {unexpected_error}")
 
         return []
-
 
     def fetch_variant_details(self, clinvar_variant_id: str) -> Optional[Dict]:
         """
@@ -201,24 +203,20 @@ class ClinVarSearch:
             clinvar_variant_id (str): ClinVar variant identifier (UID)
 
         Returns:
-            Optional[Dict]: Parsed annotations dictionary if successful, None if 
-                            fetch or parse fails. Dictionary contains keys such as 
-                            'uid', 'variation_name', 'clinical_significance', 
+            Optional[Dict]: Parsed annotations dictionary if successful, None if
+                            fetch or parse fails. Dictionary contains keys such as
+                            'uid', 'variation_name', 'clinical_significance',
                             'genomic_location', 'genes', etc.
         """
         # Parameters to be sent to the ClinVar ESummary API
-        summary_params = {
-            "db": "clinvar",
-            "id": clinvar_variant_id,
-            "retmode": "json"
-        }
+        summary_params = {"db": "clinvar", "id": clinvar_variant_id, "retmode": "json"}
 
         # Make a GET request to ClinVars ESummary endpoint with provided parameters
         try:
             response = requests.get(
                 self.clinvar_summary_url,
                 params=summary_params,
-                timeout=self.search_timeout
+                timeout=self.search_timeout,
             )
 
             # If the response code is not 200, log an error
@@ -229,7 +227,9 @@ class ClinVarSearch:
                 )
                 return None
 
-            response_data = response.json()  # Parse the JSON body of the response into a Python dictionary
+            response_data = (
+                response.json()
+            )  # Parse the JSON body of the response into a Python dictionary
 
             # Extract the variant specific data from the response
             variant_result = response_data["result"][clinvar_variant_id]
@@ -237,8 +237,7 @@ class ClinVarSearch:
 
             # Parse the raw result into structured annotations
             parsed_annotations = self._parse_variant_summary(
-                variant_result,
-                clinvar_variant_id
+                variant_result, clinvar_variant_id
             )
 
             logger.info(
@@ -261,9 +260,7 @@ class ClinVarSearch:
 
         # Catch issues when the API response cannot be parsed as valid JSON
         except json.JSONDecodeError as json_error:
-            logger.error(
-                f"Failed to parse variant details JSON response: {json_error}"
-            )
+            logger.error(f"Failed to parse variant details JSON response: {json_error}")
 
         # Catch any other unexpected error that were not handled above
         except Exception as unexpected_error:
@@ -273,42 +270,48 @@ class ClinVarSearch:
 
         return None, None
 
-
-    def get_hgnc_id(self, ncbi_gene_id: str, gene_symbol: str = "Unknown") -> Optional[str]:
+    def get_hgnc_id(
+        self, ncbi_gene_id: str, gene_symbol: str = "Unknown"
+    ) -> Optional[str]:
         """
         This method queries the HGNC API using the NCBI Entrez Gene ID
         to retrieve the HGNC ID.
 
         Args:
             ncbi_gene_id (str): NCBI Entrez Gene identifier
-            gene_symbol (str, optional): Gene symbol for logging purposes. 
+            gene_symbol (str, optional): Gene symbol for logging purposes.
                                         Defaults to "Unknown".
 
         Returns:
-            Optional[str]: HGNC identifier string (e.g., "HGNC:1100") if found, 
+            Optional[str]: HGNC identifier string (e.g., "HGNC:1100") if found,
                         None otherwise
         """
-        logger.debug(f"Fetching HGNC ID for NCBI Gene ID: {ncbi_gene_id}")
+        logger.debug(
+            "Fetching HGNC ID for gene %s (NCBI Gene ID: %s)",
+            gene_symbol,
+            ncbi_gene_id,
+        )
 
         # Construct the HGNC API URL using the given NCBI gene ID
-        hgnc_api_url = (f"https://rest.genenames.org/fetch/entrez_id/{ncbi_gene_id}")
+        hgnc_api_url = f"https://rest.genenames.org/fetch/entrez_id/{ncbi_gene_id}"
 
         # Set headers to request a JSON response from the HGNC API
         request_headers = {"Accept": "application/json"}
 
         # Send a GET request to the HGNC API with a 10 second timeout
         try:
-            response = requests.get(
-                hgnc_api_url,
-                headers=request_headers,
-                timeout=10
-            )
+            response = requests.get(hgnc_api_url, headers=request_headers, timeout=10)
             response.raise_for_status()  # Raise an exception for HTTP errors
 
-            hgnc_data = response.json()  # Parse the JSON response body into a Python dictionary
-            gene_documents = hgnc_data.get("response", {}).get("docs", [])  # Extract the list of gene documents from the API response
+            hgnc_data = (
+                response.json()
+            )  # Parse the JSON response body into a Python dictionary
+            gene_documents = hgnc_data.get("response", {}).get(
+                "docs", []
+            )  # Extract the list of gene documents from the API response
 
-            # Check if any gene documents were returned and try to extract the HGNC ID from the first document
+            # Check if any gene documents were returned and
+            # try to extract the HGNC ID from the first document
             if gene_documents:
                 hgnc_id = gene_documents[0].get("hgnc_id")
                 if hgnc_id:
@@ -316,15 +319,12 @@ class ClinVarSearch:
                         f"Found HGNC ID: {hgnc_id} for Gene ID: {ncbi_gene_id}"
                     )
                     return hgnc_id
-                else:
-                    logger.warning(
-                        f"HGNC response missing 'hgnc_id' field for "
-                        f"Gene ID: {ncbi_gene_id}"
-                    )
-            else:
                 logger.warning(
-                    f"No HGNC data found for NCBI Gene ID: {ncbi_gene_id}"
+                    f"HGNC response missing 'hgnc_id' field for "
+                    f"Gene ID: {ncbi_gene_id}"
                 )
+            else:
+                logger.warning(f"No HGNC data found for NCBI Gene ID: {ncbi_gene_id}")
 
         # Handle different types of errors that may occur during the HGNC API request
         except requests.exceptions.HTTPError as http_error:
@@ -340,8 +340,9 @@ class ClinVarSearch:
 
         return None
 
-
-    def _parse_variant_summary(self, variant_result: Dict, clinvar_variant_id: str) -> Dict:
+    def _parse_variant_summary(
+        self, variant_result: Dict, clinvar_variant_id: str
+    ) -> Dict:
         """
         Parse and normalize ClinVar variant summary into structured dictionary.
         This method extracts and organizes variant information from the raw
@@ -380,7 +381,9 @@ class ClinVarSearch:
             "obj_type": variant_result.get("obj_type", "N/A"),
             "variation_name": variant_result.get("title", "N/A"),
             "protein_change": variant_result.get("protein_change", "N/A"),
-            "molecular_consequences": variant_result.get("molecular_consequence_list", []),
+            "molecular_consequences": variant_result.get(
+                "molecular_consequence_list", []
+            ),
             "genes": [],
             "assembly_name": "N/A",
             "chr": "N/A",
@@ -392,9 +395,7 @@ class ClinVarSearch:
             "review_status": "N/A",
             "trait_name": "N/A",
             "trait_omim": "N/A",
-            "variation_id": str(
-            variant_result.get("variation_id", clinvar_variant_id)
-            ),
+            "variation_id": str(variant_result.get("variation_id", clinvar_variant_id)),
         }
 
         # Extract genomic location information (prioritize GRCh38 assembly)
@@ -407,9 +408,7 @@ class ClinVarSearch:
                     )
                     variant_annotations["chr"] = location.get("chr", "N/A")
                     variant_annotations["band"] = location.get("band", "N/A")
-                    variant_annotations["start"] = str(
-                        location.get("start", "N/A")
-                    )
+                    variant_annotations["start"] = str(location.get("start", "N/A"))
                     variant_annotations["stop"] = str(location.get("stop", "N/A"))
 
                     logger.debug(
@@ -420,23 +419,20 @@ class ClinVarSearch:
 
         # Extract classification data
         logger.debug("Extracting germline classification information")
-        germline_classification = variant_result.get(
-            "germline_classification", {}
-        )
+        germline_classification = variant_result.get("germline_classification", {})
 
-        variant_annotations["clinical_significance"] = (
-            germline_classification.get("description", "N/A")
+        variant_annotations["clinical_significance"] = germline_classification.get(
+            "description", "N/A"
         )
-        variant_annotations["last_evaluated"] = (
-            germline_classification.get("last_evaluated", "N/A")
+        variant_annotations["last_evaluated"] = germline_classification.get(
+            "last_evaluated", "N/A"
         )
-        variant_annotations["review_status"] = (
-            germline_classification.get("review_status", "N/A")
+        variant_annotations["review_status"] = germline_classification.get(
+            "review_status", "N/A"
         )
 
         logger.debug(
-            f"Clinical significance: "
-            f"{variant_annotations['clinical_significance']}"
+            f"Clinical significance: " f"{variant_annotations['clinical_significance']}"
         )
 
         # Extract trait and OMIM identifier
@@ -445,9 +441,7 @@ class ClinVarSearch:
 
         if trait_set:
             primary_trait = trait_set[0]
-            variant_annotations["trait_name"] = primary_trait.get(
-                "trait_name", "N/A"
-            )
+            variant_annotations["trait_name"] = primary_trait.get("trait_name", "N/A")
 
             # Search for OMIM cross-reference
             for cross_reference in primary_trait.get("trait_xrefs", []):
@@ -455,9 +449,7 @@ class ClinVarSearch:
                     variant_annotations["trait_omim"] = cross_reference.get(
                         "db_id", "N/A"
                     )
-                    logger.debug(
-                        f"Found OMIM ID: {variant_annotations['trait_omim']}"
-                    )
+                    logger.debug(f"Found OMIM ID: {variant_annotations['trait_omim']}")
                     break
 
         # Extract gene information and fetch HGNC identifiers
@@ -474,12 +466,14 @@ class ClinVarSearch:
             if ncbi_gene_id != "N/A":
                 hgnc_identifier = self.get_hgnc_id(ncbi_gene_id, gene_symbol)
 
-            variant_annotations["genes"].append({
-                "symbol": gene_symbol,
-                "geneid": str(ncbi_gene_id),
-                "strand": gene_entry.get("strand", "N/A"),
-                "hgnc_id": hgnc_identifier or "N/A"
-            })
+            variant_annotations["genes"].append(
+                {
+                    "symbol": gene_symbol,
+                    "geneid": str(ncbi_gene_id),
+                    "strand": gene_entry.get("strand", "N/A"),
+                    "hgnc_id": hgnc_identifier or "N/A",
+                }
+            )
 
             hgnc_status = hgnc_identifier if hgnc_identifier else "not available"
             logger.debug(
@@ -499,7 +493,7 @@ class ClinVarSearch:
 
          Args:
             variant_annotations (Dict): Dictionary containing parsed variant annotations
-            
+
         Returns:
             None
         """
@@ -530,8 +524,7 @@ class ClinVarSearch:
         logger.info("CLINICAL CLASSIFICATION")
         logger.info("-" * 70)
         logger.info(
-            f"Clinical Significance: "
-            f"{variant_annotations['clinical_significance']}"
+            f"Clinical Significance: " f"{variant_annotations['clinical_significance']}"
         )
         logger.info(f"Review Status: {variant_annotations['review_status']}")
         logger.info(f"Last Evaluated: {variant_annotations['last_evaluated']}")
@@ -547,7 +540,7 @@ class ClinVarSearch:
         logger.info("")
         logger.info("ASSOCIATED GENES")
         logger.info("-" * 70)
-        for gene_info in variant_annotations['genes']:
+        for gene_info in variant_annotations["genes"]:
             logger.info(
                 f"  • {gene_info['symbol']} "
                 f"(GeneID: {gene_info['geneid']}, "
@@ -571,24 +564,23 @@ class ClinVarSearch:
             f"{variant_annotations['variation_id']}/"
         )
 
-        if variant_annotations['genes']:
-            primary_gene_id = variant_annotations['genes'][0]['geneid']
-            logger.info(
-                f"Gene: https://www.ncbi.nlm.nih.gov/gene/{primary_gene_id}"
-            )
+        if variant_annotations["genes"]:
+            primary_gene_id = variant_annotations["genes"][0]["geneid"]
+            logger.info(f"Gene: https://www.ncbi.nlm.nih.gov/gene/{primary_gene_id}")
 
         logger.info("=" * 70)
 
-def main():
+
+def main() -> None:
     """
     Main entry point for command-line variant search.
 
     This function provides an interactive interface for searching ClinVar
     variants by HGVS notation. It prompts the user for input, performs
-    the search, and displays the results. 
+    the search, and displays the results.
 
      Returns:
-        Optional[Dict]: Search result dictionary if variant found and annotations 
+        Optional[Dict]: Search result dictionary if variant found and annotations
                        retrieved successfully, None otherwise.
     """
 
@@ -601,8 +593,8 @@ def main():
     # Validate input
     if not variant_input:
         logger.error("No variant input provided by user")
-        return
-    
+        return None
+
     # Perform search
     search_result = clinvar_searcher.search_by_hgvs(variant_input)
 
@@ -610,12 +602,10 @@ def main():
     if search_result:
         clinvar_searcher.display_annotations(search_result)
         logger.info("Variant search completed successfully")
-        return search_result
     else:
-        logger.warning(
-            "Variant search completed but no annotations were retrieved"
-        )
+        logger.warning("Variant search completed but no annotations were retrieved")
 
+    return None
 
 if __name__ == "__main__":
     main()
