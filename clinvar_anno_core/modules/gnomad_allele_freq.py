@@ -39,7 +39,7 @@ def format_significant_figures(value: Optional[float], sig_figs: int = 4) -> Opt
     # Do not process sig fig logic on value of 0
     if value == 0:
         return "0"
-    
+
     # Core calculation logic
     digits = sig_figs - int(floor(log10(abs(value)))) - 1
     return f"{value:.{digits}f}"
@@ -63,7 +63,7 @@ def query_gnomad(variant_id: str, dataset_id: str = "gnomad_r4") -> Optional[Dic
     """
     endpoint = "https://gnomad.broadinstitute.org/api/graphql"
     logger.debug(f"Querying gnomAD for variant: {variant_id} (dataset: {dataset_id})")
- 
+
     # Define GraphQL query to retrieve AF data for genome and exome
     graphql_query = """
     query VariantQuery($variantId: String!, $datasetId: DatasetId!) {
@@ -93,7 +93,7 @@ def query_gnomad(variant_id: str, dataset_id: str = "gnomad_r4") -> Optional[Dic
         response_data = response.json()
         logger.debug(f"Successfully retrieved data for {variant_id}")
         return response_data.get("data", {}).get("variant")
-    
+
     except Exception as error:
         # Log and return None on any failure
         logger.error(f"[gnomAD Error] {variant_id}: {error}")
@@ -204,8 +204,10 @@ def extract_gnomad_afs_from_vcf(vcf_path: Path) -> List[Dict]:
     for index, variant_id in enumerate(variant_ids, start=1):
         logger.debug(f"[{index}/{len(variant_ids)}] Querying variant: {variant_id}")
         variant_data = query_gnomad(variant_id)  # Query gnomAD API for this variant
-        af_summary = get_af_summary(variant_id, variant_data)  # Format the AF data into a clean summary
+
+        # Format the AF data into a clean summary
+        af_summary = get_af_summary(variant_id, variant_data)
         allele_frequency_results.append(af_summary)  # Store the results
 
-    logger.info(f"Finished gnomAD AF extraction: {len(allele_frequency_results)} variants processed")
+    logger.info(f"Extracted GnomAD AF: {len(allele_frequency_results)} variants processed")
     return allele_frequency_results
