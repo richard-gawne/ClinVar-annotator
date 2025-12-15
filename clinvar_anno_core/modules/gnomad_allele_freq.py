@@ -172,7 +172,7 @@ def extract_gnomad_afs_from_vcf(vcf_path: Path) -> List[Dict]:
     Parse a VCF file and extract gnomAD allele frequencies for each variant.
     
     This function reads a VCF file, extracts variant identifiers, queries the
-    gnomAD database for each variant, and collects allele frequency summaries.
+    gnomAD database for each variant and collects allele frequency summaries.
 
     Args:
         vcf_path (Path): Path to the VCF file to process
