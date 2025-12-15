@@ -38,13 +38,19 @@ annotation_pipeline = VariantAnnotationPipeline()
 @app.route("/", methods=["GET", "POST"])
 def home():
     """
-    Home page view for the ClinVar Annotator app.
+    Handler for ClinVar Annotator application home page display, VCF upload, 
+    variant annotation (calling on functionality from clinvar_anno_core), and 
+    display of annotated data in a table.
 
-    - Displays the VCF upload form (GET request).
-    - Receives one or more uploaded VCF files (POST request).
-    - Calls ClinVar annotation functionality to annotate variants.
-    - Saves patient and variant info to the database.
-    - Renders a template to display annotated variants in a table.
+    Args:
+        None (uses Flask `request` object)
+
+    Returns:
+        Flask Response: Renders either the VCF upload form (GET) or
+        the annotated variant table (POST)
+
+    Raises:
+        Logs exceptions internally; errors in processing do not propagate.
     """
     if request.method == "POST":
         files = request.files.getlist("vcf_files")
