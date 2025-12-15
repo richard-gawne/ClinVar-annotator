@@ -23,12 +23,12 @@ class ClinVarSearch:
     """
     Search and retrieve variant information from NCBI ClinVar database.
 
-    This class interfaces with NCBI's E-utilities API to:
-    - Search ClinVar using genomic HGVS notation
-    - Retrieve detailed variant summaries via esummary endpoint
-    - Parse and normalize variant annotations into structured dictionaries
-    - Fetch HGNC identifiers for associated genes
-    - Display formatted variant annotations
+    This class interfaces with NCBI's E-utilities API and exposes the following methods:
+    - search_by_hgvs(): Search ClinVar using HGVS notation
+    - search_clinvar(): Execute raw ClinVar esearch queries
+    - fetch_variant_details(): Retrieve and parse ClinVar esummary data
+    - get_hgnc_id(): Fetch HGNC identifiers for associated genes
+    - display_annotations(): Output formatted variant annotations (development use)
 
     Attributes:
         eutils_base_url (str): Base URL for NCBI E-utilities API
@@ -64,9 +64,10 @@ class ClinVarSearch:
                            (e.g., "NM_000719.6:c.5550G>A")
 
         Returns:
-        Optional[Dict]: Dictionary containing parsed variant annotations if found, None otherwise.
-                        The dictionary includes keys such as 'variation_name', 'clinical_significance',
-                        'genomic_location', 'genes', etc.
+        Optional[Dict]: Parsed variant annotations for the first matching ClinVar
+        variant. If multiple ClinVar records match the HGVS notation, the first
+        result returned by ClinVar is used. Returns None if no matching variant
+        is found.
         """
         logger.info(f"Searching ClinVar for HGVS notation: {hgvs_notation}")
 
@@ -98,6 +99,11 @@ class ClinVarSearch:
 
         # Retrieve details for the first matching variant
         primary_variant_id = variant_id_list[0]  # Take the first variant ID from the list of matched results
+        if len(variant_id_list) > 1:
+            logger.warning(
+                f"Multiple ClinVar variants found for {hgvs_notation}; "
+                f"using first match (ID={variant_id_list[0]})"
+            )
         logger.debug(f"Fetching details for variant ID: {primary_variant_id}")
 
         # Calls the method to fetch annotation data
@@ -572,11 +578,6 @@ class ClinVarSearch:
             )
 
         logger.info("=" * 70)
-
-
-'''
-THIS LOGIC IS ONLY FOR DEVELOPMENT PURPOSES
-'''
 
 def main():
     """
