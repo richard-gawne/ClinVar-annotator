@@ -11,10 +11,12 @@ Classes:
 """
 
 import json
-from typing import Dict, Optional, List
-import requests
 import time
-from utils.logger import logger
+from typing import Dict, List, Optional
+
+import requests
+
+from clinvar_anno_core.utils.logger import logger
 
 
 class ClinVarSearch:
@@ -39,6 +41,9 @@ class ClinVarSearch:
     def __init__(self, search_timeout: int = 30):
         """
         Initialize the ClinVarSearch object with API endpoints and configuration.
+
+        Args:
+            search_timeout (int): Timeout in seconds for API requests. Defaults to 30.
         """
         self.eutils_base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"  # Base URL for NCBI E-utilities, used for searching and fetching data from ClinVar
         self.clinvar_summary_url = ("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi")  # Specific endpoint for retrieving ClinVar summaries by ID 
@@ -55,13 +60,13 @@ class ClinVarSearch:
         the likelihood of finding a match.
 
         Args:
-            hgvs_notation: Variant string in HGVS nomenclature
+            hgvs_notation (str): Variant string in HGVS nomenclature
                            (e.g., "NM_000719.6:c.5550G>A")
 
         Returns:
-            Dictionary containing parsed variant annotations if found, None otherwise.
-            The dictionary includes keys such as 'variation_name', 'clinical_significance',
-            'genomic_location', 'genes', etc.
+        Optional[Dict]: Dictionary containing parsed variant annotations if found, None otherwise.
+                        The dictionary includes keys such as 'variation_name', 'clinical_significance',
+                        'genomic_location', 'genes', etc.
         """
         logger.info(f"Searching ClinVar for HGVS notation: {hgvs_notation}")
 
@@ -120,10 +125,10 @@ class ClinVarSearch:
         database using the provided search term.
 
         Args:
-            search_term: Query string to search in ClinVar
+            search_term (str, optional): Query string to search in ClinVar
 
         Returns:
-            List of variant ID strings from ClinVar. Empty list if search fails
+            List[str]: List of variant ID strings from ClinVar. Empty list if search fails
             or no results found.
         """
         # Construct the full URL for the ESearch endpoint
@@ -187,12 +192,13 @@ class ClinVarSearch:
         it into a structured annotation dictionary.
 
         Args:
-            clinvar_variant_id: ClinVar variant identifier (UID)
+            clinvar_variant_id (str): ClinVar variant identifier (UID)
 
         Returns:
-            Tuple containing:
-                - Parsed annotations dictionary (or None if fetch/parse fails)
-                - Raw API response dictionary (or None if fetch fails)
+            Optional[Dict]: Parsed annotations dictionary if successful, None if 
+                            fetch or parse fails. Dictionary contains keys such as 
+                            'uid', 'variation_name', 'clinical_significance', 
+                            'genomic_location', 'genes', etc.
         """
         # Parameters to be sent to the ClinVar ESummary API
         summary_params = {
@@ -268,12 +274,14 @@ class ClinVarSearch:
         to retrieve the HGNC ID.
 
         Args:
-            ncbi_gene_id: NCBI Entrez Gene identifier 
+            ncbi_gene_id (str): NCBI Entrez Gene identifier
+            gene_symbol (str, optional): Gene symbol for logging purposes. 
+                                        Defaults to "Unknown".
 
         Returns:
-            HGNC identifier string (e.g., "HGNC:1100")
+            Optional[str]: HGNC identifier string (e.g., "HGNC:1100") if found, 
+                        None otherwise
         """
-
         logger.debug(f"Fetching HGNC ID for NCBI Gene ID: {ncbi_gene_id}")
 
         # Construct the HGNC API URL using the given NCBI gene ID
@@ -335,11 +343,11 @@ class ClinVarSearch:
         missing fields by providing default "N/A" values.
 
         Args:
-            variant_result: Raw variant data dictionary from ClinVar API
-            clinvar_variant_id: ClinVar variant identifier for fallback
+            variant_result (Dict): Raw variant data dictionary from ClinVar API
+            clinvar_variant_id (str): ClinVar variant identifier for fallback
 
         Returns:
-            Dictionary containing normalized variant annotations with keys:
+            Dict: Dictionary containing normalized variant annotations with keys:
                 - uid: Variant unique identifier
                 - obj_type: Object type in ClinVar
                 - variation_name: Variant description/title
@@ -483,11 +491,11 @@ class ClinVarSearch:
         """
         Display formatted variant annotations to the console via logger.
 
-        This method outputs comprehensive variant information in a structured,
-        human-readable format using the configured logger.
-
-        Args:
-            variant_annotations: Dictionary containing parsed variant annotations
+         Args:
+            variant_annotations (Dict): Dictionary containing parsed variant annotations
+            
+        Returns:
+            None
         """
         logger.info("=" * 70)
         logger.info("CLINVAR VARIANT SUMMARY")
@@ -576,7 +584,11 @@ def main():
 
     This function provides an interactive interface for searching ClinVar
     variants by HGVS notation. It prompts the user for input, performs
-    the search, and displays the results.
+    the search, and displays the results. 
+
+     Returns:
+        Optional[Dict]: Search result dictionary if variant found and annotations 
+                       retrieved successfully, None otherwise.
     """
 
     # Initialize searcher

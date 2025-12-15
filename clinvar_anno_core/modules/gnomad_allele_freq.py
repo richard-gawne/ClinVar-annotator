@@ -4,19 +4,34 @@ This module provides functionality to extract allele frequency (AF) data
 from the gnomAD database using its GraphQL API.
 """
 
-import requests
+from math import floor, log10
 from pathlib import Path
-from typing import List, Optional, Dict
-from modules.vcf_parser import parse_vcf_file
-from math import log10, floor
-from utils.logger import logger
+from typing import Dict, List, Optional
+
+import requests
+
+from clinvar_anno_core.modules.vcf_parser import parse_vcf_file
+from clinvar_anno_core.utils.logger import logger
+
 
 
 def format_significant_figures(value: Optional[float], sig_figs: int = 4) -> Optional[str]:
     """
-    Format an allele frequency value as a string with 4 significant figures
+    Format an allele frequency value as a string with specified significant figures.
+        
+    This function converts a float value to a string representation with a specific
+    number of significant figures. It handles None values and zero appropriately.
+    
+    Args:
+        value (Optional[float]): The allele frequency value to format. Can be None
+                                for missing data.
+        sig_figs (int, optional): Number of significant figures to use in formatting.
+                                Defaults to 4.
+    
+    Returns:
+        Optional[str]: Formatted string with specified significant figures, "0" for
+                    zero values, or None if input value is None.    
     """
-
     # Return None unchanged- missing AF data
     if value is None:
         return None
@@ -33,15 +48,19 @@ def format_significant_figures(value: Optional[float], sig_figs: int = 4) -> Opt
 def query_gnomad(variant_id: str, dataset_id: str = "gnomad_r4") -> Optional[Dict]:
     """
     Query the gnomAD GraphQL API for a given variant ID.
+    
+    This function sends a GraphQL query to the gnomAD API to retrieve allele
+    frequency data including allele count (AC), allele number (AN), and allele
+    frequency (AF) for both genome and exome datasets.
 
     Args:
-        variant_id: e.g. "1:55516888:A:T"
-        dataset_id: Dataset to query (default: "gnomad_r4")
+        variant_id (str): Variant identifier in gnomAD format (e.g., "1:55516888:A:T")
+        dataset_id (str, optional): Dataset to query. Defaults to "gnomad_r4".
 
     Returns:
-        Parsed JSON dictionary containing variant data, or None if query fails.
+        Optional[Dict]: Parsed JSON dictionary containing variant data with genome
+                       and exome frequency information, or None if query fails.
     """
-
     endpoint = "https://gnomad.broadinstitute.org/api/graphql"
     logger.debug(f"Querying gnomAD for variant: {variant_id} (dataset: {dataset_id})")
  
@@ -83,16 +102,25 @@ def query_gnomad(variant_id: str, dataset_id: str = "gnomad_r4") -> Optional[Dic
 
 def get_af_summary(variant_id: str, variant_data: Optional[Dict]) -> Dict:
     """
-    Summarize allele frequencies from gnomAD for genome, exome, and combined.
+    Summarise allele frequencies from gnomAD for genome, exome, and combined.
+    
+    This function processes raw gnomAD data to extract and format allele frequencies.
+    It calculates a combined total AF from genome and exome data, and formats all
+    frequencies to 4 significant figures.
 
     Args:
-        variant_id: gnomAD variant ID
-        variant_data: Data returned by gnomAD API
+        variant_id (str): gnomAD variant identifier (e.g., "1:55516888:A:T")
+        variant_data (Optional[Dict]): Data returned by gnomAD API containing genome
+                                      and exome frequency information, or None if
+                                      query failed.
 
     Returns:
-        A dictionary with genome, exome, and total allele frequencies as strings.
+        Dict: A dictionary with the following keys:
+            - variant_id (str): The input variant identifier
+            - genome_af (Optional[str]): Genome allele frequency as formatted string
+            - exome_af (Optional[str]): Exome allele frequency as formatted string
+            - total_af (Optional[str]): Combined allele frequency as formatted string
     """
-
     # Default result structure- used if variant data is missing or incomplete
     af_summary = {
         "variant_id": variant_id,
@@ -142,12 +170,21 @@ def get_af_summary(variant_id: str, variant_data: Optional[Dict]) -> Dict:
 def extract_gnomad_afs_from_vcf(vcf_path: Path) -> List[Dict]:
     """
     Parse a VCF file and extract gnomAD allele frequencies for each variant.
+    
+    This function reads a VCF file, extracts variant identifiers, queries the
+    gnomAD database for each variant, and collects allele frequency summaries.
 
     Args:
-        vcf_path: Path to the VCF file to process
+        vcf_path (Path): Path to the VCF file to process
 
     Returns:
-        A list of dictionaries containing allele frequency summaries for each variant.
+        List[Dict]: A list of dictionaries containing allele frequency summaries
+                   for each variant. Each dictionary contains variant_id, genome_af,
+                   exome_af, and total_af keys. Returns empty list if VCF parsing fails.
+
+    Raises:
+            FileNotFoundError: If the VCF file does not exist.
+            ValueError: If the VCF file is malformed.
     """
     logger.info(f"Starting allele frequency extraction for VCF: {vcf_path}")
     allele_frequency_results = []
