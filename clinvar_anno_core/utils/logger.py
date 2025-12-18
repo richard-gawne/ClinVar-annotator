@@ -5,6 +5,13 @@ from pathlib import Path
 
 # Create a logger instance
 def create_logger():
+    """
+    Create and configure a logger.
+    Logger is configured to log messages at DEBUG level during development.
+
+    Returns:
+        - logger: configured logger instance with stream and rotating file handler
+    """
     current_directory = str(Path(__file__).resolve().parent)
     parent_directory = Path(current_directory).parent.parent
 
