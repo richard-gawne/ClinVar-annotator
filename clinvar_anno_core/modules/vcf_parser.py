@@ -1,3 +1,9 @@
+"""
+This module provides utilities for parcing VCF (variant call format)
+files and returning a list of formatted variants
+"""
+
+import traceback
 from pathlib import Path
 from clinvar_anno_core.utils.logger import logger
 
@@ -6,10 +12,10 @@ def parse_vcf_file(vcf_filepath: Path):
     Parse a VCF file and extract variants in the format: chrom:position:REF:ALT
     
     Args:
-        - vcf_filepath: Path to the VCF file
+        - vcf_filepath (Path): Path to the VCF file
         
     Returns:
-        - list of formatted variants (chrom:position:REF:ALT)
+        - list (str) of formatted variants (chrom:position:REF:ALT)
     """
     variants = []
     
@@ -59,7 +65,6 @@ def parse_vcf_file(vcf_filepath: Path):
         return None
     except Exception as e:
         logger.error(f"Error parsing file: {e}")
-        import traceback
         traceback.print_exc()
         return None
     
@@ -73,5 +78,3 @@ def parse_vcf_file(vcf_filepath: Path):
 if __name__ == "__main__":
     result = parse_vcf_file("/home/ubuntu/software_project/ClinVar-annotator/data/Patient1.vcf")
     print(result)
-
-
