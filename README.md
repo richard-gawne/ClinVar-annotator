@@ -29,25 +29,32 @@
 ### Development Environment Setup
 ### Coding Standards
 #### Best practices to contribute : PEP8
-### Build and Deployment
 
 ## Testing
 ### Running Tests
+
 ### Writing Tests
+
 ### Continous Integration
+-- How to run the tests - pytest 
 
 ## Contributing
 ### Contribution Guidelines
 ### Code of Conduct
 ### Reporting Issues
+-- Potentially skip
 
 ## Documentation
 ### API Documentation
 ### User Guides
+--  link to user manual
 ### FAQ
+
 
 ## Community and Support
 ### Acknowledgments
+-- chatgpt
+-- Pete's code
 ### Contributors
 
 ## Licence
