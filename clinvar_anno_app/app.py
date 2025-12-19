@@ -103,10 +103,7 @@ def home():
                 # Loop through variants and their annotations
                 for variant_key, annotation_data in annotated_variants.items():
                     try:
-                        # Parse variant info into VCF description format
-                        # parts = variant_key.split(':')
-                        # chrom, pos, ref, alt = parts
-                        # formatted_variant = f"GRCh38:{chrom}:{pos}:{ref}:{alt}"
+
                         formatted_variant = variant_key
 
                         # Extract gene symbol
