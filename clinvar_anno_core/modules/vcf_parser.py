@@ -1,40 +1,37 @@
-from pathlib import Path
+"""
+This module provides utilities for parcing VCF (variant call format)
+files and returning a list of formatted variants
+"""
 
-def parse_vcf_file(vcf_filepath: Path, debug: bool=False):
+import traceback
+from pathlib import Path
+from clinvar_anno_core.utils.logger import logger
+
+def parse_vcf_file(vcf_filepath: Path):
     """
     Parse a VCF file and extract variants in the format: chrom:position:REF:ALT
     
     Args:
-        vcf_filepath: Path to the VCF file
-        debug: If True, print debugging information
+        - vcf_filepath (Path): Path to the VCF file
         
     Returns:
-         list of formatted variants
-
-    Raises:
-
+        - list (str) of formatted variants (chrom:position:REF:ALT)
     """
     variants = []
     
     try:
         with open(vcf_filepath, 'r', encoding='utf-8-sig') as f:
+            logger.info(f"User provided input vcf file: {vcf_filepath}")
             for line_num, line in enumerate(f, 1):
                 # Remove any trailing whitespace and carriage returns
                 line = line.rstrip('\r\n')
                 
-                if debug:
-                    print(f"Line {line_num}: '{line[:100]}'")  # Print first 100 chars
-                
                 # Skip header lines
                 if line.startswith('#'):
-                    if debug:
-                        print(f"  -> Skipped (header)")
                     continue
                 
                 # Skip empty lines
                 if not line.strip():
-                    if debug:
-                        print(f"  -> Skipped (empty)")
                     continue
                 
                 # Parse VCF line - handle both tab and space delimiters
@@ -43,36 +40,36 @@ def parse_vcf_file(vcf_filepath: Path, debug: bool=False):
                 # If tab split didn't work, try multiple spaces
                 if len(fields) < 5:
                     fields = line.split()
-                
-                if debug:
-                    print(f"  -> Number of fields: {len(fields)}")
-                    print(f"  -> Fields: {fields[:5] if len(fields) >= 5 else fields}")
-                
+
                 if len(fields) >= 5:
-                    # Ensures current line has at least 5 fields before extracting values
+                    # Ensures current line has at least 5 fields
+                    # before extracting values
                     chrom = fields[0].strip()
                     pos = fields[1].strip()
                     ref = fields[3].strip()
                     alt = fields[4].strip()
-                    
-                    variant = f"{chrom}:{pos}:{ref}:{alt}"
+
                     # Formats variants
+                    variant = f"{chrom}:{pos}:{ref}:{alt}"
                     variants.append(variant)
                     
-                    if debug:
-                        print(f"  -> Added variant: {variant}")
+                    logger.debug(f"Added variant: {variant}")
                 else:
-                    if debug:
-                        print(f"  -> Skipped (insufficient fields: {len(fields)})")
+                    logger.debug(
+                        f"Skipping line {line_num} "
+                        f"(insufficient fields: {len(fields)})"
+                    )
     
     except FileNotFoundError:
-        print(f"Error: File {vcf_filepath} not found")
+        logger.error(f"Error: File {vcf_filepath} not found")
         return None
     except Exception as e:
-        print(f"Error parsing file: {e}")
-        import traceback
+        logger.error(f"Error parsing file: {e}")
         traceback.print_exc()
         return None
+    
+    logger.info(f"Finished parsing file: {vcf_filepath}. "
+                f"Total variants extracted: {len(variants)}")
     
     return variants
 
@@ -81,5 +78,3 @@ def parse_vcf_file(vcf_filepath: Path, debug: bool=False):
 if __name__ == "__main__":
     result = parse_vcf_file("/home/ubuntu/software_project/ClinVar-annotator/data/Patient1.vcf")
     print(result)
-
-
