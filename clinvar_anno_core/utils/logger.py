@@ -1,3 +1,5 @@
+""" This module provides a configurable logging utility for applications. """
+
 # Imports
 import logging
 from logging.handlers import RotatingFileHandler
