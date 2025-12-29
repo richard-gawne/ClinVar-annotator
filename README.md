@@ -22,6 +22,9 @@
 
 ## Running in docker
 #### Please see [DOCKER.md](/home/ubuntu/software_project/ClinVar-annotator/docs/DOCKER.md)
+#### (Change if the docker instructions are added to installation markdown)
+
+
 
 ## Usage
 
@@ -47,15 +50,17 @@
 ## Documentation
 ### API Documentation
 ### User Guides
---  link to user manual
+#### Please see [USER_MANUAL.md](/home/ubuntu/software_project/ClinVar-annotator/docs/USER_MANUAL.md)
 ### FAQ
 
 
 ## Community and Support
-### Acknowledgments
--- chatgpt
--- Pete's code
 ### Contributors
+#### [Richard Gawne](https://github.com/richard-gawne)
+#### [Kaine Veal](https://github.com/kaine-veal)
+#### [Hadiya Khan](https://github.com/hikhan31) 
+### Acknowledgments
+#### We would like to acknowledge the use of ChatGPT in our project and the use of Peter Freeman's code for parts of our project such as logging.
 
 ## Licence
 #### Please see [LICENCE.txt](/home/ubuntu/software_project/ClinVar-annotator/LICENCE.txt)
