@@ -29,14 +29,17 @@ from clinvar_anno_core.modules.gnomad_allele_freq import (
 
 
 def test_format_sig_figs_none():
+    """Verifies that None is passed through unchanged to avoid unintended formatting."""
     assert format_significant_figures(None) is None
 
 
 def test_format_sig_figs_zero():
+    """Verifies zero is handled as a special case, since significant figures are undefined for 0."""
     assert format_significant_figures(0) == "0"
 
 
 def test_format_sig_figs_normal():
+    """Verifies non-zero values are rounded to the expected number of significant figures."""
     assert format_significant_figures(0.012345) == "0.01235"
 
 
