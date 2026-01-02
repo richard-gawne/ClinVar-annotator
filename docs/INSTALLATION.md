@@ -1,5 +1,7 @@
 # Installation
-Instructions for installing `ClinVar-annotator` on Linux systems. Instructions for installation with `Docker` are included at the end of this guide.
+This guide describes how to install `ClinVar-annotator` on Linux systems.
+
+Instructions for installation using `Docker` are provided at the end of this guide.
 ## Pre-requisites
 Required:
 - `Python 3.12`
@@ -32,7 +34,7 @@ Access the application at: `http://127.0.0.1:5000`
 ```
 docker build -t clinvar-annotator .
 ```
-### Run the container
+### Run the application in the container
 ```
 docker run -p 5000:5000 clinvar-annotator
 ```
