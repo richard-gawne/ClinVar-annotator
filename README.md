@@ -29,13 +29,14 @@ Please see [INSTALLATION.md](docs/INSTALLATION.md)
 We would like to have a positive, open and inclusive environment for our community.
 The following are minmimum expectations we require of those within our community:
 
-    - **No disrespectful behaviour**
-
-      This includes threats, abuse, slurs, sexual remarks or innenuendos.
-
-    - **No discrimination or harassment**
+  - **No disrespectful behaviour**
     
-      We are committed to making partciaption within our community a harassment-free experience for all, regalrdless of age, ethnicity, gender idenity or expression, religion, visible or invisible disability, phsyical size, race, socio-economic status, education or sexual orientation. Harassment of any kind is unwelcome such as verbal, phsyical or virtual.
+    This includes threats, abuse, slurs, sexual remarks or innenuendos.
+
+  - **No discrimination or harassment**
+    
+    We are committed to making partciaption within our community a harassment-free experience for all, regalrdless of age, ethnicity, gender idenity or expression, religion, visible or invisible disability, phsyical size, race, socio-economic status, education or sexual orientation. Harassment of any kind is unwelcome such as verbal, phsyical or virtual.
+
 
 ### Reporting Issues
 Please refer to the [github documentation](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/creating-an-issue) on reporting an issue.
