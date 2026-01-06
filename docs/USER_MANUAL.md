@@ -2,14 +2,17 @@
 
 ## Uploading a VCF 
 - Data persists between use, therefore use the upload button directly to see what has been previously uploaded.
-- Further files can be uploaded by using the 'choose files' button. Multiple VCF files can be uploaded by holding 'Ctrl'.
+
+- Further files can be uploaded by using the 'choose files' button.
 ![Choose file(s)](https://github.com/richard-gawne/ClinVar-annotator/blob/documentation_hk/docs/images/Choose_file.PNG)
+
+- Multiple VCF files can be uploaded by holding 'Ctrl'.
 ![Selecting file(s)](https://github.com/richard-gawne/ClinVar-annotator/blob/documentation_hk/docs/images/Selecting_files.png)
 
 - Click on 'Upload' to proceed. NOTE: files must be VCF format and variants called against GRCh38.
 ![Upload file(s)](https://github.com/richard-gawne/ClinVar-annotator/blob/documentation_hk/docs/images/Upload.PNG)
 
-- NOTE: Annotation and table display may take up to 30 seconds for a VCF file with approximately 10 variants.
+NOTE: Annotation and table display may take up to 30 seconds for a VCF file with approximately 10 variants.
 
 ## Navigating the results page
 
@@ -43,9 +46,11 @@
 - Click on the 'download CSV' button to download a CSV based on filters and searches
 - This can easily be visualised in notepad or Excel format (NOTE: star rating is not shown in Excel)
 
-Notepad
+Notepad:
+
 ![Notepad](https://github.com/richard-gawne/ClinVar-annotator/blob/documentation_hk/docs/images/Notepad.PNG)
 
-Excel
+Excel:
+
 ![Excel](https://github.com/richard-gawne/ClinVar-annotator/blob/documentation_hk/docs/images/Excel.PNG)
 
