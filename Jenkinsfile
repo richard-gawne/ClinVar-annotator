@@ -35,7 +35,7 @@ pipeline {
             }
         }
 
-        stage('Install Packages') {
+        stage('Install Package') {
             steps {
                 sh '''
                 bash -c "
