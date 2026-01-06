@@ -24,12 +24,13 @@ pipeline {
         stage('Set Up Conda Environment') {
             steps {
                 sh '''
-                #!/usr/bin/env bash
+                bash -c "
                 source ${CONDA_PREFIX}/etc/profile.d/conda.sh
 
                 # Update env if it exists, otherwise create it
                 conda env update -n ${CONDA_ENV_NAME} -f environment.yml || \
                 conda env create -n ${CONDA_ENV_NAME} -f environment.yml
+                "
                 '''
             }
         }
@@ -37,12 +38,13 @@ pipeline {
         stage('Install Package') {
             steps {
                 sh '''
-                #!/usr/bin/env bash
+                bash -c "
                 source ${CONDA_PREFIX}/etc/profile.d/conda.sh
                 conda activate ${CONDA_ENV_NAME}
 
                 pip install --upgrade pip
                 pip install .
+                "
                 '''
             }
         }
@@ -50,7 +52,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
-                #!/usr/bin/env bash
+                bash -c "
                 source ${CONDA_PREFIX}/etc/profile.d/conda.sh
                 conda activate ${CONDA_ENV_NAME}
 
@@ -60,6 +62,7 @@ pipeline {
                        --cov=clinvar_anno_app \
                        --cov-report=xml \
                        tests/
+                "
                 '''
             }
         }
@@ -67,10 +70,11 @@ pipeline {
         stage('Upload Coverage to Codecov') {
             steps {
                 sh '''
-                #!/usr/bin/env bash
+                bash -c "
                 curl -Os https://uploader.codecov.io/latest/linux/codecov
                 chmod +x codecov
                 ./codecov -t ${CODECOV_TOKEN} -f coverage.xml
+                "
                 '''
             }
         }
