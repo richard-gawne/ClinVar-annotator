@@ -4,13 +4,14 @@
 - Data persists between use, therefore use the upload button directly to see what has been previously uploaded.
 - Further files can be uploaded by using the 'choose files' button. Multiple VCF files can be uploaded by holding 'Ctrl'. 
 ![Choose file(s)](https://github.com/richard-gawne/ClinVar-annotator/blob/documentation_hk/docs/images/Choose_file.PNG)
+(Add in other image of selecting files)
 
 - Click on 'Upload' to proceed. NOTE: files must be VCF format and variants called against GRCh38.
-![Upload file(s)](https://github.com/richard-gawne/ClinVar-annotator/blob/documentation_hk/docs/images/Uplaod.PNG)
+![Upload file(s)](https://github.com/richard-gawne/ClinVar-annotator/blob/documentation_hk/docs/images/Upload.PNG)
 
 ## Navigating the results page
 
-### Filters
+### Multi-select Filters
 ![Filter](https://github.com/richard-gawne/ClinVar-annotator/blob/documentation_hk/docs/images/Filter.png)
 - There are 4 filter options that can be used to narrow down the results page: 
   Patient, Variant, Gene Symbol and Consensus Classification 
@@ -22,6 +23,7 @@
   to condense the table to show only the specified data points
 - E.g. the gene 'SNCA' can be inputted so that only fields containing SNCA as the 
   gene symbol will be displayed.
+- Additionally there are sorting arrows at the top of each column within the table (up for ascending and down for descending)
 
 ### Summary
 ![Table summary](https://github.com/richard-gawne/ClinVar-annotator/blob/documentation_hk/docs/images/Summary.png)

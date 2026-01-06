@@ -40,12 +40,15 @@ Our code adheres to PEP-8 standards
 
 ## Contributing
 ### Contribution Guidelines
-#### 
+- Fork project
+- Clone fork to local directory
+- Write and commit changes
+- Push to forked repo
+- Submit a pull request
 ### Code of Conduct
-Use this as a template: https://stars.github.com/code-of-conduct/
 We would like to have a positive, open and inclusive environment for our community.
 The following are minmimum expectations we require of those within our community:
-    - **No disrispectful behaviour**
+    - **No disrespectful behaviour**
       This includes threats, abuse, slurs, sexual remarks or innenuendos.
     - **No discrimination or harassment**
       We are committed to making partciaption within our community a harassment-free experience for all, regalrdless of age, ethnicity, gender idenity or expression, religion, visible or invisible disability, phsyical size, race, socio-economic status, education or sexual orientation. Harassment of any kind is unwelcome such as verbal, phsyical or virtual.
@@ -55,10 +58,8 @@ Please refer to the [github documentation](https://docs.github.com/en/issues/tra
 
 
 ## Documentation
-### API Documentation
 ### User Guides
 Please see [USER_MANUAL.md](/home/ubuntu/software_project/ClinVar-annotator/docs/USER_MANUAL.md)
-### FAQ
 
 
 ## Community and Support
@@ -67,10 +68,9 @@ Please see [USER_MANUAL.md](/home/ubuntu/software_project/ClinVar-annotator/docs
 [Kaine Veal](https://github.com/kaine-veal)
 [Hadiya Khan](https://github.com/hikhan31) 
 ### Acknowledgments
-We would like to acknowledge the use of ChatGPT in our project and the use of Peter Freeman's code for parts of our project such as logging.
+We would like to acknowledge the use of ChatGPT in our project which has been used for creating code, testing, docstrings and commenting.
+Additionally we would like to acknowledge the use of Peter Freeman's code for parts of our project such as logging.
 
-## Licence
-Please see [LICENCE.txt](/home/ubuntu/software_project/ClinVar-annotator/LICENCE.txt)
 
 ## Contact
 ### 
