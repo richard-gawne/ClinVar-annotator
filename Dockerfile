@@ -1,20 +1,30 @@
-# Use lightweight Python
-FROM python:3.12-slim
+# Use Miniconda base image
+FROM continuumio/miniconda3:latest
 
-# Set work directory
+# Set working directory
 WORKDIR /app
 
-# Copy project into container
-COPY . /app
+# Copy environment yaml
+COPY environment.yml .
 
-# Upgrade pip
+# Create conda environment
+RUN conda env create -f environment.yml \
+    && conda clean -afy
+
+# Make sure the conda environment is activated by default
+SHELL ["conda", "run", "-n", "clinvar_anno_env", "/bin/bash", "-c"]
+
+# Copy the rest of the project
+COPY . .
+
+# Upgrade pip inside the conda env
 RUN pip install --upgrade pip
 
-# Install the package
+# Install ClinVar-annotator package
 RUN pip install .
 
-# Expose the default Flask port
+# Expose Flask port
 EXPOSE 5000
 
-# Command to run the Flask app
-CMD ["python", "-m", "clinvar_anno_app.app"]
+# Run the Flask app inside the conda environment
+CMD ["conda", "run", "--no-capture-output", "-n", "clinvar_anno_env", "python", "-m", "clinvar_anno_app.app"]
