@@ -53,6 +53,7 @@ pipeline {
             steps {
                 sh '''
                 bash -c "
+                mkdir -p logs
                 source ${CONDA_PREFIX}/etc/profile.d/conda.sh
                 conda activate ${CONDA_ENV_NAME}
 
