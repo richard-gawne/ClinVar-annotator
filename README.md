@@ -59,10 +59,14 @@ Please see [USER_MANUAL.md](docs/USER_MANUAL.md)
 ## Community and Support
 
 ### Contributors
+
 [Richard Gawne](https://github.com/richard-gawne)
+
 [Kaine Veal](https://github.com/kaine-veal)
+
 [Hadiya Khan](https://github.com/hikhan31) 
 
 ### Acknowledgments
+
 We would like to acknowledge the use of ChatGPT (https://chatgpt.com/) in our project for assistance with code creation, testing, docstrings, and commenting.
 Additionally, we would like to acknowledge Peter Freeman’s code, which served as a template for portions of our project, including logging, Jenkins integration, and the Dockerfile.
