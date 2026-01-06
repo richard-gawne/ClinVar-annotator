@@ -4,7 +4,7 @@
 - Data persists between use, therefore use the upload button directly to see what has been previously uploaded.
 - Further files can be uploaded by using the 'choose files' button. Multiple VCF files can be uploaded by holding 'Ctrl'.
 ![Choose file(s)](https://github.com/richard-gawne/ClinVar-annotator/blob/documentation_hk/docs/images/Choose_file.PNG)
-![Selecting file(s)](https://github.com/richard-gawne/ClinVar-annotator/blob/documentation_hk/docs/images/Upload.PNG)
+![Selecting file(s)](https://github.com/richard-gawne/ClinVar-annotator/blob/documentation_hk/docs/images/Selecting_files.png)
 
 - Click on 'Upload' to proceed. NOTE: files must be VCF format and variants called against GRCh38.
 ![Upload file(s)](https://github.com/richard-gawne/ClinVar-annotator/blob/documentation_hk/docs/images/Upload.PNG)
@@ -14,7 +14,7 @@
 ## Navigating the results page
 
 ### Multi-select Filters
-![Filter](https://github.com/richard-gawne/ClinVar-annotator/blob/documentation_hk/docs/images/Filter.png)
+![Multi-select filter](https://github.com/richard-gawne/ClinVar-annotator/blob/documentation_hk/docs/images/Multiselect_filter.png)
 
 - There are 4 filter options that can be used to narrow down the results page: 
     - Patient 
