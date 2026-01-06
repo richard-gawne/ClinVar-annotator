@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+        timeout(time: 20, unit: 'MINUTES')
+    }
+
     environment {
         CONDA_PREFIX = '/usr/local/miniconda3'
         CONDA_ENV_NAME = 'clinvar_anno_env'
@@ -20,29 +24,25 @@ pipeline {
         stage('Set Up Conda Environment') {
             steps {
                 sh '''
-                bash -c "
-                    source ${CONDA_PREFIX}/etc/profile.d/conda.sh
+                set -euxo pipefail
+                source ${CONDA_PREFIX}/etc/profile.d/conda.sh
 
-                    # Remove existing environment if it exists
-                    conda env remove -n ${CONDA_ENV_NAME} -y || true
-
-                    # Create fresh environment
-                    conda env create -f environment.yml
-                "
+                # Update env if it exists, otherwise create it
+                conda env update -n ${CONDA_ENV_NAME} -f environment.yml || \
+                conda env create -n ${CONDA_ENV_NAME} -f environment.yml
                 '''
             }
         }
 
-        stage('Install Packages') {
+        stage('Install Package') {
             steps {
                 sh '''
-                bash -c "
-                    source ${CONDA_PREFIX}/etc/profile.d/conda.sh
-                    conda activate ${CONDA_ENV_NAME}
+                set -euxo pipefail
+                source ${CONDA_PREFIX}/etc/profile.d/conda.sh
+                conda activate ${CONDA_ENV_NAME}
 
-                    pip install --upgrade pip
-                    pip install .
-                "
+                pip install --upgrade pip
+                pip install .
                 '''
             }
         }
@@ -50,13 +50,16 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
-                bash -c "
-                    source ${CONDA_PREFIX}/etc/profile.d/conda.sh
-                    conda activate ${CONDA_ENV_NAME}
+                set -euxo pipefail
+                source ${CONDA_PREFIX}/etc/profile.d/conda.sh
+                conda activate ${CONDA_ENV_NAME}
 
-                    echo 'Running pytest...'
-                    pytest --maxfail=1 --disable-warnings --cov=clinvar_anno_core --cov=clinvar_anno_app --cov-report=xml tests/
-                "
+                pytest --maxfail=1 \
+                       --disable-warnings \
+                       --cov=clinvar_anno_core \
+                       --cov=clinvar_anno_app \
+                       --cov-report=xml \
+                       tests/
                 '''
             }
         }
@@ -64,13 +67,13 @@ pipeline {
         stage('Upload Coverage to Codecov') {
             steps {
                 sh '''
-                    curl -Os https://uploader.codecov.io/latest/linux/codecov
-                    chmod +x codecov
-                    ./codecov -t ${CODECOV_TOKEN} -f coverage.xml
+                set -euxo pipefail
+                curl -Os https://uploader.codecov.io/latest/linux/codecov
+                chmod +x codecov
+                ./codecov -t ${CODECOV_TOKEN} -f coverage.xml
                 '''
             }
         }
-
     }
 
     post {
