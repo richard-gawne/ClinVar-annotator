@@ -24,6 +24,7 @@ pipeline {
         stage('Set Up Conda Environment') {
             steps {
                 sh '''
+                #!/usr/bin/env bash
                 set -euxo pipefail
                 source ${CONDA_PREFIX}/etc/profile.d/conda.sh
 
@@ -37,6 +38,7 @@ pipeline {
         stage('Install Package') {
             steps {
                 sh '''
+                #!/usr/bin/env bash
                 set -euxo pipefail
                 source ${CONDA_PREFIX}/etc/profile.d/conda.sh
                 conda activate ${CONDA_ENV_NAME}
@@ -50,6 +52,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
+                #!/usr/bin/env bash
                 set -euxo pipefail
                 source ${CONDA_PREFIX}/etc/profile.d/conda.sh
                 conda activate ${CONDA_ENV_NAME}
@@ -67,6 +70,7 @@ pipeline {
         stage('Upload Coverage to Codecov') {
             steps {
                 sh '''
+                #!/usr/bin/env bash
                 set -euxo pipefail
                 curl -Os https://uploader.codecov.io/latest/linux/codecov
                 chmod +x codecov
