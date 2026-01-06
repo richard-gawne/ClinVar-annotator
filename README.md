@@ -12,10 +12,10 @@ ClinVar-annotator is a software tool designed to annotate variants using ClinVar
 
 ## Getting Started
 #### Installation
-For installation instructions please see [INSTALLATION.md](/home/ubuntu/software_project/ClinVar-annotator/docs/INSTALLATION.md)
+For installation instructions please see [INSTALLATION.md](docs/INSTALLATION.md)
 
 ## Running in docker
-Please see [INSTALLATION.md](insert link)
+Please see [INSTALLATION.md](docs/INSTALLATION.md)
 
 ## Contributing
 ### Contributing to our project
@@ -38,7 +38,7 @@ Please refer to the [github documentation](https://docs.github.com/en/issues/tra
 
 ## Documentation
 ### User Guides
-Please see [USER_MANUAL.md](/home/ubuntu/software_project/ClinVar-annotator/docs/USER_MANUAL.md)
+Please see [USER_MANUAL.md](docs/USER_MANUAL.md)
 
 ## Community and Support
 ### Contributors
