@@ -1,10 +1,10 @@
-# ClinVar-annotator
+[![codecov](https://codecov.io/gh/richard-gawne/ClinVar-annotator/graph/badge.svg?token=B4CGI5N5KX)](https://codecov.io/gh/richard-gawne/ClinVar-annotator)
 
-### BIOL65650 Software project - a tool to annotate variants using ClinVar
+# ClinVar-annotator
 
 ## Project Overview
 
-ClinVar-annotator is a software tool designed to annotate variants using ClinVar. Users can upload VCF files through the easy to use web interface which returns a table containing variant information. ClinVar-annotator uses VariantValidator to generate standardised HGVS nomenclature for each variant.
+ClinVar-annotator is a Flask web application designed to annotate variants using ClinVar. Users can upload VCF files through the easy-to-use web interface, and explore a table of annotated variants. Uploaded data is added to an SQLite database and accessed via the SQLAlchemy ORM for data persistence between application usages. ClinVar-annotator uses VariantValidator to generate correct HGVS nomenclature for each variant.
 
 ## Features
 
