@@ -14,17 +14,17 @@ RUN conda env create -f environment.yml \
 # Make sure the conda environment is activated by default
 SHELL ["conda", "run", "-n", "clinvar_anno_env", "/bin/bash", "-c"]
 
-# Copy the rest of the project
+# Copy project files
 COPY . .
 
-# Upgrade pip inside the conda env
-RUN pip install --upgrade pip
+# Upgrade pip and install ClinVar-annotator package inside conda env
+RUN pip install --upgrade pip \
+    && pip install .
 
-# Install ClinVar-annotator package
-RUN pip install .
-
-# Expose Flask port
+# Expose application port
 EXPOSE 5000
 
-# Run the Flask app inside the conda environment
-CMD ["conda", "run", "--no-capture-output", "-n", "clinvar_anno_env", "python", "-m", "clinvar_anno_app.app"]
+# Run app with Gunicorn
+CMD ["conda", "run", "--no-capture-output", "-n", "clinvar_anno_env", \
+     "gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", \
+     "clinvar_anno_app.app:app"]
