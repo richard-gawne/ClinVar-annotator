@@ -14,6 +14,7 @@ Optional:
 ```
 git clone https://github.com/richard-gawne/ClinVar-annotator.git
 cd ClinVar-annotator
+mkdir logs/  # Create dir to store logs
 ```
 ## Create and activate the `conda` environment
 ```
