@@ -20,18 +20,18 @@ def create_logger():
     logger = logging.getLogger('clinvar_anno_logger')
     logger.setLevel(logging.DEBUG)
 
-    # Set stream handler to DEBUG
+    # Set stream handler to INFO
     stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.DEBUG)
+    stream_handler.setLevel(logging.INFO)
     # Create a formatter for stream handler
     stream_formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
     stream_handler.setFormatter(stream_formatter)
 
-    # Set rotating file handler to DEBUG
+    # Set rotating file handler to INFO
     file_handler = RotatingFileHandler(str(parent_directory) + '/logs/clinvar_anno.log',
                                        maxBytes=500000,  # 500 KB
                                        backupCount=2)
-    file_handler.setLevel(logging.DEBUG)
+    file_handler.setLevel(logging.INFO)
     # Create a formatter for file handler
     file_formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
     file_handler.setFormatter(file_formatter)
