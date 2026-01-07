@@ -24,17 +24,17 @@ conda activate clinvar_anno_env
 ```
 pip install .
 ```
-## Run the `Flask` application using `Gunicorn`
+## Run the `Flask` application
 ```
-gunicorn --bind 127.0.0.1:8000 clinvar_anno_app.app:app
+python -m clinvar_anno_app.app
 ```
-Access the application at: `http://127.0.0.1:8000`
+Access the application at: `http://localhost:5000`
 ## Installation with `Docker`
 ### Build the `Docker` image
 ```
 docker build -t clinvar-annotator .
 ```
-### Run the application using `Gunicorn` in the container
+### Run the application in the container
 ```
 docker run -p 5000:5000 clinvar-annotator
 ```

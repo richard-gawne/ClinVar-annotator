@@ -24,7 +24,5 @@ RUN pip install --upgrade pip \
 # Expose application port
 EXPOSE 5000
 
-# Run app with Gunicorn
-CMD ["conda", "run", "--no-capture-output", "-n", "clinvar_anno_env", \
-     "gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", \
-     "clinvar_anno_app.app:app"]
+# Run app
+CMD ["conda", "run", "--no-capture-output", "-n", "clinvar_anno_env", "python", "-m", "clinvar_anno_app.app"]
